@@ -7,10 +7,10 @@ import (
 	"regexp"
 	"strings"
 
-	"ccm-desktop/internal/config"
-	"ccm-desktop/internal/fsutil"
-	"ccm-desktop/internal/parser"
-	"ccm-desktop/internal/report"
+	"ccm-desktop-v2/backend/internal/config"
+	"ccm-desktop-v2/backend/internal/fsutil"
+	"ccm-desktop-v2/backend/internal/parser"
+	"ccm-desktop-v2/backend/internal/report"
 )
 
 type ClaudeMDInfo struct {

@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"ccm-desktop/internal/config"
-	"ccm-desktop/internal/fsutil"
-	"ccm-desktop/internal/report"
+	"ccm-desktop-v2/backend/internal/config"
+	"ccm-desktop-v2/backend/internal/fsutil"
+	"ccm-desktop-v2/backend/internal/report"
 )
 
 type MCPServer struct {

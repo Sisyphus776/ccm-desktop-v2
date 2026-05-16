@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"ccm-desktop/internal/config"
-	"ccm-desktop/internal/report"
+	"ccm-desktop-v2/backend/internal/config"
+	"ccm-desktop-v2/backend/internal/report"
 )
 
 var excludeDirs = map[string]bool{

@@ -3,10 +3,10 @@ package portability
 import (
 	"fmt"
 
-	"ccm-desktop/internal/claudemd"
-	"ccm-desktop/internal/config"
-	"ccm-desktop/internal/mcp"
-	"ccm-desktop/internal/report"
+	"ccm-desktop-v2/backend/internal/claudemd"
+	"ccm-desktop-v2/backend/internal/config"
+	"ccm-desktop-v2/backend/internal/mcp"
+	"ccm-desktop-v2/backend/internal/report"
 )
 
 // Run performs a full cross-computer portability analysis.
