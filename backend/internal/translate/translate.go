@@ -1,4 +1,4 @@
-package main
+package translate
 
 import (
 	"encoding/json"
@@ -38,7 +38,7 @@ func saveCache() {
 	os.WriteFile(path, data, 0644)
 }
 
-func isMostlyChinese(s string) bool {
+func IsMostlyChinese(s string) bool {
 	cjk := 0
 	total := 0
 	for _, r := range s {
@@ -57,7 +57,7 @@ func isMostlyChinese(s string) bool {
 }
 
 func TranslateDescription(en string) string {
-	if en == "" || isMostlyChinese(en) {
+	if en == "" || IsMostlyChinese(en) {
 		return ""
 	}
 	loadCache()
@@ -65,7 +65,7 @@ func TranslateDescription(en string) string {
 		return zh
 	}
 	zh := callYoudaoAPI(en)
-	if zh == "" || !isMostlyChinese(zh) {
+	if zh == "" || !IsMostlyChinese(zh) {
 		zh = miniTranslate(en)
 	}
 	if zh != "" {
@@ -80,7 +80,6 @@ func callYoudaoAPI(text string) string {
 		if attempt > 0 {
 			time.Sleep(time.Duration(attempt) * time.Second)
 		}
-		// Rate limit: max 2 calls/second to avoid API throttling
 		if elapsed := time.Since(lastAPICall); elapsed < 500*time.Millisecond {
 			time.Sleep(500*time.Millisecond - elapsed)
 		}
@@ -134,7 +133,6 @@ func miniTranslate(en string) string {
 }
 
 var miniDict = []struct{ en, zh string }{
-	// Phrases — ordered longest first to avoid partial replacement
 	{"Use this skill whenever the user wants to", "当用户需要以下操作时使用此 Skill："},
 	{"Use this skill any time a", "当涉及"},
 	{"Use this skill whenever", "当用户需要时使用此 Skill："},
@@ -155,7 +153,6 @@ var miniDict = []struct{ en, zh string }{
 	{"before writing implementation code", "在编写实现代码之前"},
 	{"before touching code", "在修改代码之前"},
 	{"before proposing fixes", "在提出修复方案之前"},
-	// Technical terms
 	{"Product Requirements Document", "产品需求文档"},
 	{"browser automation", "浏览器自动化"},
 	{"Word documents", "Word 文档"},
@@ -169,7 +166,6 @@ var miniDict = []struct{ en, zh string }{
 	{"PDF files", "PDF 文件"},
 	{"slide deck", "幻灯片"},
 	{"presentation", "演示文稿"},
-	// Action patterns
 	{"create or edit", "创建或编辑"},
 	{"creating or editing", "创建或编辑"},
 	{"interact with websites", "与网站交互"},
@@ -184,7 +180,6 @@ var miniDict = []struct{ en, zh string }{
 	{"from current workspace", "从当前工作区"},
 	{"establishes how to find", "建立如何查找"},
 	{"multi-step task", "多步骤任务"},
-	// Common words (lower priority)
 	{"implementation", "实现"},
 	{"requirements", "需求"},
 	{"conversation", "对话"},
