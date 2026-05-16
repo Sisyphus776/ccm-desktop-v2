@@ -16,6 +16,66 @@
   --success: #3fb950;
 }
 
+/* Frost — cool blues, clean glass feel */
+[data-theme="frost"] {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --border: #30363d;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-link: #79c0ff;
+  --active-bg: rgba(121, 192, 255, 0.15);
+  --danger: #ff7b72;
+  --danger-bg: rgba(255, 123, 114, 0.15);
+  --success: #7ee787;
+}
+
+/* Sepia — warm amber, paper-like */
+[data-theme="sepia"] {
+  --bg-primary: #1e1a16;
+  --bg-secondary: #25211d;
+  --bg-tertiary: #2d2823;
+  --border: #3d3731;
+  --text-primary: #e8d5b7;
+  --text-secondary: #a8957a;
+  --text-link: #d2991d;
+  --active-bg: rgba(210, 153, 29, 0.15);
+  --danger: #e0554a;
+  --danger-bg: rgba(224, 85, 74, 0.15);
+  --success: #7ea853;
+}
+
+/* Monochrome — grayscale, typography focused */
+[data-theme="monochrome"] {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #171717;
+  --bg-tertiary: #1f1f1f;
+  --border: #333333;
+  --text-primary: #e5e5e5;
+  --text-secondary: #999999;
+  --text-link: #cccccc;
+  --active-bg: rgba(255, 255, 255, 0.08);
+  --danger: #888888;
+  --danger-bg: rgba(255, 255, 255, 0.08);
+  --success: #aaaaaa;
+}
+
+/* Neon — vibrant, terminal-inspired */
+[data-theme="neon"] {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-tertiary: #141428;
+  --border: #2a2a4a;
+  --text-primary: #e0e0ff;
+  --text-secondary: #8080b0;
+  --text-link: #00ff88;
+  --active-bg: rgba(0, 255, 136, 0.1);
+  --danger: #ff3366;
+  --danger-bg: rgba(255, 51, 102, 0.1);
+  --success: #00ffcc;
+}
+
 * {
   margin: 0;
   padding: 0;
