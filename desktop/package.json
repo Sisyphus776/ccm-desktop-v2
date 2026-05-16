@@ -1,0 +1,16 @@
+{
+  "name": "desktop",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "dev": "tsc && electron .",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

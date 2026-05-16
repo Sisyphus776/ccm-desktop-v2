@@ -1,0 +1,10 @@
+{
+  "name": "ccm-desktop-v2",
+  "private": true,
+  "workspaces": ["desktop", "frontend"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w desktop\"",
+    "build": "npm run build -w frontend && npm run build -w desktop && electron-builder",
+    "go:build": "cd backend && go build -o ../desktop/ccm-backend.exe ./cmd/ccm-backend"
+  }
+}
