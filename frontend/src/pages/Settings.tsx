@@ -107,11 +107,11 @@ export default function Settings() {
             >
               <div className={cn(
                 'h-12 rounded-md mb-2',
-                t.id === 'oled' && 'bg-[#0a0a0a] border border-[#2a2a2a]',
-                t.id === 'light' && 'bg-[#fafafa] border border-[#e2e5e9]',
-                t.id === 'paper' && 'bg-gradient-to-br from-[#faf7f2] to-[#f3ede4] border border-[#e0d6c5]',
-                t.id === 'midnight' && 'bg-gradient-to-br from-[#0a0e1a] to-[#151d36] border border-[#1e2d4a]',
-                t.id === 'mineral' && 'bg-gradient-to-br from-[#f3f4ef] to-[#e8ebe2] border border-[#d3d8cc]',
+                t.id === 'lacquer' && 'bg-[#0c0a09] border border-[#2a2520]',
+                t.id === 'alabaster' && 'bg-gradient-to-br from-[#faf8f5] to-[#f3f0eb] border border-[#e4dfd6]',
+                t.id === 'verdigris' && 'bg-gradient-to-br from-[#091412] to-[#142521] border border-[#1f3830]',
+                t.id === 'noir-rose' && 'bg-gradient-to-br from-[#110a0d] to-[#1f1519] border border-[#32262b]',
+                t.id === 'ceramic' && 'bg-gradient-to-br from-[#faf9f6] to-[#f2f1ec] border border-[#e0ded7]',
               )} />
               <div className="text-sm font-semibold">{t.nameCN} {t.name}</div>
             </div>

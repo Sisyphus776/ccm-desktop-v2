@@ -2,78 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════
+   LACQUER · 漆器 — Default dark theme
+   Japanese urushi lacquerware. Deep lustrous charcoal
+   with vermillion warmth & gilded amber highlights.
+   ═══════════════════════════════════════════════════════════ */
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1a1a1a;
-  --border: #2a2a2a;
-  --text-primary: #e0e0e0;
-  --text-secondary: #888888;
-  --text-link: #58a6ff;
-  --active-bg: rgba(88, 166, 255, 0.12);
-  --danger: #f85149;
-  --danger-bg: rgba(248, 81, 73, 0.12);
-  --success: #3fb950;
+  --bg-primary: #0c0a09;
+  --bg-secondary: #12100f;
+  --bg-tertiary: #1a1715;
+  --border: #332e28;
+  --text-primary: #e0dad5;
+  --text-secondary: #8c8278;
+  --text-link: #d4875e;
+  --active-bg: rgba(212, 135, 94, 0.12);
+  --danger: #e85d47;
+  --danger-bg: rgba(232, 93, 71, 0.12);
+  --success: #8a9e6b;
 }
 
-/* ── Professional Light: Airy, crisp, Linear-inspired workspace ── */
-[data-theme="light"] {
-  --bg-primary: #fafafa;
+/* ═══════════════════════════════════════════════════════════
+   ALABASTER · 雪花石膏
+   Warm ivory stone with subtle golden veins.
+   Limestone shadows. A luxury spa gallery.
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="alabaster"] {
+  --bg-primary: #faf8f5;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f3f5;
-  --border: #e2e5e9;
-  --text-primary: #1a1d23;
-  --text-secondary: #6b7280;
-  --text-link: #2563eb;
-  --active-bg: rgba(37, 99, 235, 0.08);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.08);
-  --success: #059669;
+  --bg-tertiary: #f3f0eb;
+  --border: #d9d3c8;
+  --text-primary: #3d3830;
+  --text-secondary: #756c60;
+  --text-link: #a56230;
+  --active-bg: rgba(165, 98, 48, 0.07);
+  --danger: #c25742;
+  --danger-bg: rgba(194, 87, 66, 0.07);
+  --success: #6b8559;
 }
 
-/* ── Warm Paper: Editorial, afternoon reading light, tactile ── */
-[data-theme="paper"] {
-  --bg-primary: #faf7f2;
-  --bg-secondary: #fffcf7;
-  --bg-tertiary: #f3ede4;
-  --border: #e0d6c5;
-  --text-primary: #3d3226;
-  --text-secondary: #8c7b6b;
-  --text-link: #b85c1e;
-  --active-bg: rgba(184, 92, 30, 0.08);
-  --danger: #c44536;
-  --danger-bg: rgba(196, 69, 54, 0.08);
-  --success: #5c8a49;
+/* ═══════════════════════════════════════════════════════════
+   VERDIGRIS · 铜绿
+   Oxidized bronze patina. Deep teal depths,
+   weathered copper warmth. Aged & timeless.
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="verdigris"] {
+  --bg-primary: #091412;
+  --bg-secondary: #0d1b19;
+  --bg-tertiary: #142521;
+  --border: #2a4a3f;
+  --text-primary: #d0dcd5;
+  --text-secondary: #7a9a8a;
+  --text-link: #c4956a;
+  --active-bg: rgba(196, 149, 106, 0.12);
+  --danger: #d4695a;
+  --danger-bg: rgba(212, 105, 90, 0.12);
+  --success: #8ab892;
 }
 
-/* ── Midnight Blue: Deep navy luxury, sapphire night sky ── */
-[data-theme="midnight"] {
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #0f1428;
-  --bg-tertiary: #151d36;
-  --border: #1e2d4a;
-  --text-primary: #d0daf0;
-  --text-secondary: #64749e;
-  --text-link: #6d9dff;
-  --active-bg: rgba(109, 157, 255, 0.12);
-  --danger: #ff5c72;
-  --danger-bg: rgba(255, 92, 114, 0.12);
-  --success: #4ec992;
+/* ═══════════════════════════════════════════════════════════
+   NOIR ROSE · 暗玫瑰
+   Midnight jazz bar. Smoky plum charcoal,
+   burgundy velvet, rose-gold candlelight.
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="noir-rose"] {
+  --bg-primary: #110a0d;
+  --bg-secondary: #170f13;
+  --bg-tertiary: #1f1519;
+  --border: #3d2d33;
+  --text-primary: #e5d7db;
+  --text-secondary: #9a848a;
+  --text-link: #d4959e;
+  --active-bg: rgba(212, 149, 158, 0.12);
+  --danger: #e4606d;
+  --danger-bg: rgba(228, 96, 109, 0.12);
+  --success: #8c9e7a;
 }
 
-/* ── Mineral: Grounded sage stone, organic calm ── */
-[data-theme="mineral"] {
-  --bg-primary: #f3f4ef;
-  --bg-secondary: #fafaf7;
-  --bg-tertiary: #e8ebe2;
-  --border: #d3d8cc;
-  --text-primary: #2c332b;
-  --text-secondary: #6f7a6b;
-  --text-link: #5b8c5a;
-  --active-bg: rgba(91, 140, 90, 0.08);
-  --danger: #c4554d;
-  --danger-bg: rgba(196, 85, 77, 0.08);
-  --success: #6b9e64;
+/* ═══════════════════════════════════════════════════════════
+   CERAMIC · 陶瓷
+   Matte porcelain white, celadon jade shadows.
+   Tea ceremony stillness. Ink-wash clarity.
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="ceramic"] {
+  --bg-primary: #faf9f6;
+  --bg-secondary: #fefdfb;
+  --bg-tertiary: #f2f1ec;
+  --border: #d5d2c9;
+  --text-primary: #2c2b26;
+  --text-secondary: #7a766b;
+  --text-link: #5d7a5d;
+  --active-bg: rgba(93, 122, 93, 0.07);
+  --danger: #c46b5a;
+  --danger-bg: rgba(196, 107, 90, 0.07);
+  --success: #5f7a52;
 }
 
 * {

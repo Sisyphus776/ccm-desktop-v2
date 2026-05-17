@@ -1,20 +1,20 @@
 export const themes = [
-  { id: 'oled', name: 'OLED Dark', nameCN: 'OLED 暗黑' },
-  { id: 'light', name: 'Professional Light', nameCN: '专业亮白' },
-  { id: 'paper', name: 'Warm Paper', nameCN: '暖纸米' },
-  { id: 'midnight', name: 'Midnight Blue', nameCN: '午夜蓝' },
-  { id: 'mineral', name: 'Mineral', nameCN: '矿物灰绿' },
+  { id: 'lacquer', name: 'Lacquer 漆器', nameCN: '漆器' },
+  { id: 'alabaster', name: 'Alabaster 石膏', nameCN: '雪花石膏' },
+  { id: 'verdigris', name: 'Verdigris 铜绿', nameCN: '铜绿' },
+  { id: 'noir-rose', name: 'Noir Rose 暗玫', nameCN: '暗玫瑰' },
+  { id: 'ceramic', name: 'Ceramic 陶瓷', nameCN: '陶瓷' },
 ] as const;
 
 export type ThemeId = typeof themes[number]['id'];
 
 export function getTheme(): ThemeId {
-  return (localStorage.getItem('ccm-theme') as ThemeId) || 'oled';
+  return (localStorage.getItem('ccm-theme') as ThemeId) || 'lacquer';
 }
 
 export function setTheme(id: ThemeId) {
   localStorage.setItem('ccm-theme', id);
-  if (id === 'oled') {
+  if (id === 'lacquer') {
     document.documentElement.removeAttribute('data-theme');
   } else {
     document.documentElement.setAttribute('data-theme', id);
@@ -23,7 +23,7 @@ export function setTheme(id: ThemeId) {
 
 export function initTheme() {
   const theme = getTheme();
-  if (theme === 'oled') {
+  if (theme === 'lacquer') {
     document.documentElement.removeAttribute('data-theme');
   } else {
     document.documentElement.setAttribute('data-theme', theme);
