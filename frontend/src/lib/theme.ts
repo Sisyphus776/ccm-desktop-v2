@@ -1,9 +1,9 @@
 export const themes = [
   { id: 'oled', name: 'OLED Dark', nameCN: 'OLED 暗黑' },
-  { id: 'frost', name: 'Frost', nameCN: '冰霜蓝' },
-  { id: 'sepia', name: 'Sepia', nameCN: '暖褐纸' },
-  { id: 'monochrome', name: 'Monochrome', nameCN: '极简灰' },
-  { id: 'neon', name: 'Neon', nameCN: '霓虹夜' },
+  { id: 'light', name: 'Professional Light', nameCN: '专业亮白' },
+  { id: 'paper', name: 'Warm Paper', nameCN: '暖纸米' },
+  { id: 'midnight', name: 'Midnight Blue', nameCN: '午夜蓝' },
+  { id: 'mineral', name: 'Mineral', nameCN: '矿物灰绿' },
 ] as const;
 
 export type ThemeId = typeof themes[number]['id'];

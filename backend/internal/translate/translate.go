@@ -1,6 +1,7 @@
 package translate
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +14,9 @@ import (
 	"unicode"
 )
 
+//go:embed seed_translations.json
+var seedData []byte
+
 var translationCache = map[string]string{}
 var cacheLoaded = false
 var lastAPICall time.Time
@@ -22,6 +26,18 @@ func loadCache() {
 		return
 	}
 	cacheLoaded = true
+
+	// Load seed translations first (bundled with binary)
+	if len(seedData) > 0 {
+		var seed map[string]string
+		if err := json.Unmarshal(seedData, &seed); err == nil {
+			for k, v := range seed {
+				translationCache[k] = v
+			}
+		}
+	}
+
+	// Load user cache (takes priority over seed)
 	home, _ := os.UserHomeDir()
 	path := filepath.Join(home, ".claude", "ccm-translations.json")
 	data, err := os.ReadFile(path)

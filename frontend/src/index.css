@@ -16,64 +16,64 @@
   --success: #3fb950;
 }
 
-/* Frost — cool blues, clean glass feel */
-[data-theme="frost"] {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
-  --border: #30363d;
-  --text-primary: #c9d1d9;
-  --text-secondary: #8b949e;
-  --text-link: #79c0ff;
-  --active-bg: rgba(121, 192, 255, 0.15);
-  --danger: #ff7b72;
-  --danger-bg: rgba(255, 123, 114, 0.15);
-  --success: #7ee787;
+/* ── Professional Light: Airy, crisp, Linear-inspired workspace ── */
+[data-theme="light"] {
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f3f5;
+  --border: #e2e5e9;
+  --text-primary: #1a1d23;
+  --text-secondary: #6b7280;
+  --text-link: #2563eb;
+  --active-bg: rgba(37, 99, 235, 0.08);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.08);
+  --success: #059669;
 }
 
-/* Sepia — warm amber, paper-like */
-[data-theme="sepia"] {
-  --bg-primary: #1e1a16;
-  --bg-secondary: #25211d;
-  --bg-tertiary: #2d2823;
-  --border: #3d3731;
-  --text-primary: #e8d5b7;
-  --text-secondary: #a8957a;
-  --text-link: #d2991d;
-  --active-bg: rgba(210, 153, 29, 0.15);
-  --danger: #e0554a;
-  --danger-bg: rgba(224, 85, 74, 0.15);
-  --success: #7ea853;
+/* ── Warm Paper: Editorial, afternoon reading light, tactile ── */
+[data-theme="paper"] {
+  --bg-primary: #faf7f2;
+  --bg-secondary: #fffcf7;
+  --bg-tertiary: #f3ede4;
+  --border: #e0d6c5;
+  --text-primary: #3d3226;
+  --text-secondary: #8c7b6b;
+  --text-link: #b85c1e;
+  --active-bg: rgba(184, 92, 30, 0.08);
+  --danger: #c44536;
+  --danger-bg: rgba(196, 69, 54, 0.08);
+  --success: #5c8a49;
 }
 
-/* Monochrome — grayscale, typography focused */
-[data-theme="monochrome"] {
-  --bg-primary: #0f0f0f;
-  --bg-secondary: #171717;
-  --bg-tertiary: #1f1f1f;
-  --border: #333333;
-  --text-primary: #e5e5e5;
-  --text-secondary: #999999;
-  --text-link: #cccccc;
-  --active-bg: rgba(255, 255, 255, 0.08);
-  --danger: #888888;
-  --danger-bg: rgba(255, 255, 255, 0.08);
-  --success: #aaaaaa;
+/* ── Midnight Blue: Deep navy luxury, sapphire night sky ── */
+[data-theme="midnight"] {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f1428;
+  --bg-tertiary: #151d36;
+  --border: #1e2d4a;
+  --text-primary: #d0daf0;
+  --text-secondary: #64749e;
+  --text-link: #6d9dff;
+  --active-bg: rgba(109, 157, 255, 0.12);
+  --danger: #ff5c72;
+  --danger-bg: rgba(255, 92, 114, 0.12);
+  --success: #4ec992;
 }
 
-/* Neon — vibrant, terminal-inspired */
-[data-theme="neon"] {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #0f0f1a;
-  --bg-tertiary: #141428;
-  --border: #2a2a4a;
-  --text-primary: #e0e0ff;
-  --text-secondary: #8080b0;
-  --text-link: #00ff88;
-  --active-bg: rgba(0, 255, 136, 0.1);
-  --danger: #ff3366;
-  --danger-bg: rgba(255, 51, 102, 0.1);
-  --success: #00ffcc;
+/* ── Mineral: Grounded sage stone, organic calm ── */
+[data-theme="mineral"] {
+  --bg-primary: #f3f4ef;
+  --bg-secondary: #fafaf7;
+  --bg-tertiary: #e8ebe2;
+  --border: #d3d8cc;
+  --text-primary: #2c332b;
+  --text-secondary: #6f7a6b;
+  --text-link: #5b8c5a;
+  --active-bg: rgba(91, 140, 90, 0.08);
+  --danger: #c4554d;
+  --danger-bg: rgba(196, 85, 77, 0.08);
+  --success: #6b9e64;
 }
 
 * {

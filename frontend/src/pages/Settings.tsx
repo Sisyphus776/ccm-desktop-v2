@@ -108,10 +108,10 @@ export default function Settings() {
               <div className={cn(
                 'h-12 rounded-md mb-2',
                 t.id === 'oled' && 'bg-[#0a0a0a] border border-[#2a2a2a]',
-                t.id === 'frost' && 'bg-[#0d1117] border border-[#30363d]',
-                t.id === 'sepia' && 'bg-[#1e1a16] border border-[#3d3731]',
-                t.id === 'monochrome' && 'bg-[#0f0f0f] border border-[#333]',
-                t.id === 'neon' && 'bg-[#0a0a0f] border border-[#2a2a4a]',
+                t.id === 'light' && 'bg-[#fafafa] border border-[#e2e5e9]',
+                t.id === 'paper' && 'bg-gradient-to-br from-[#faf7f2] to-[#f3ede4] border border-[#e0d6c5]',
+                t.id === 'midnight' && 'bg-gradient-to-br from-[#0a0e1a] to-[#151d36] border border-[#1e2d4a]',
+                t.id === 'mineral' && 'bg-gradient-to-br from-[#f3f4ef] to-[#e8ebe2] border border-[#d3d8cc]',
               )} />
               <div className="text-sm font-semibold">{t.nameCN} {t.name}</div>
             </div>
