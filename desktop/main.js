@@ -116,7 +116,7 @@ function createWindow() {
         minWidth: 900,
         minHeight: 600,
         title: 'CCM — Claude Config Manager',
-        backgroundColor: '#0a0a0a',
+        backgroundColor: '#0c0a09',
         frame: false, // Custom title bar for theme sync
         titleBarStyle: 'hidden',
         webPreferences: {

@@ -86,9 +86,9 @@ export function Sidebar() {
       <Dialog open={showQuit} onOpenChange={setShowQuit}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Quit CCM Desktop?</DialogTitle>
+            <DialogTitle>确定退出 CCM Desktop？</DialogTitle>
             <DialogDescription>
-              This will close the application. Any unsaved changes will be preserved.
+              关闭应用程序，所有更改将保留。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

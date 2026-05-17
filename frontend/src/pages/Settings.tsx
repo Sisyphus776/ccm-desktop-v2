@@ -108,10 +108,10 @@ export default function Settings() {
               <div className={cn(
                 'h-12 rounded-md mb-2',
                 t.id === 'lacquer' && 'bg-[#0c0a09] border border-[#2a2520]',
-                t.id === 'alabaster' && 'bg-gradient-to-br from-[#faf8f5] to-[#f3f0eb] border border-[#e4dfd6]',
-                t.id === 'verdigris' && 'bg-gradient-to-br from-[#091412] to-[#142521] border border-[#1f3830]',
-                t.id === 'noir-rose' && 'bg-gradient-to-br from-[#110a0d] to-[#1f1519] border border-[#32262b]',
-                t.id === 'ceramic' && 'bg-gradient-to-br from-[#faf9f6] to-[#f2f1ec] border border-[#e0ded7]',
+                t.id === 'alabaster' && 'bg-gradient-to-br from-[#faf8f5] to-[#f3f0eb] border border-[#d9d3c8]',
+                t.id === 'slate' && 'bg-gradient-to-br from-[#0b0e14] to-[#181d28] border border-[#232b3b]',
+                t.id === 'photon' && 'bg-gradient-to-br from-[#f8fafd] to-[#f1f5f9] border border-[#dde4ef]',
+                t.id === 'obsidian' && 'bg-gradient-to-br from-[#06050c] to-[#14101e] border border-[#221d30]',
               )} />
               <div className="text-sm font-semibold">{t.nameCN} {t.name}</div>
             </div>

@@ -41,60 +41,64 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   VERDIGRIS · 铜绿
-   Oxidized bronze patina. Deep teal depths,
-   weathered copper warmth. Aged & timeless.
+   SLATE · 钛空
+   Aerospace cockpit. Cold titanium steel,
+   precision indigo-blue. Orbital station clean.
    ═══════════════════════════════════════════════════════════ */
-[data-theme="verdigris"] {
-  --bg-primary: #091412;
-  --bg-secondary: #0d1b19;
-  --bg-tertiary: #142521;
-  --border: #2a4a3f;
-  --text-primary: #d0dcd5;
-  --text-secondary: #7a9a8a;
-  --text-link: #c4956a;
-  --active-bg: rgba(196, 149, 106, 0.12);
-  --danger: #d4695a;
-  --danger-bg: rgba(212, 105, 90, 0.12);
-  --success: #8ab892;
+[data-theme="slate"] {
+  --bg-primary: #0b0e14;
+  --bg-secondary: #11151d;
+  --bg-tertiary: #181d28;
+  --border: #232b3b;
+  --text-primary: #e2e8f0;
+  --text-secondary: #8494b0;
+  --text-link: #7dabf0;
+  --active-bg: rgba(125, 171, 240, 0.10);
+  --danger: #f0606c;
+  --danger-bg: rgba(240, 96, 108, 0.10);
+  --success: #6bbf8a;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   NOIR ROSE · 暗玫瑰
-   Midnight jazz bar. Smoky plum charcoal,
-   burgundy velvet, rose-gold candlelight.
+   PHOTON · 光量子
+   Quantum clean room. Sterile white,
+   cyan-lavender glow. Biolab precision.
    ═══════════════════════════════════════════════════════════ */
-[data-theme="noir-rose"] {
-  --bg-primary: #110a0d;
-  --bg-secondary: #170f13;
-  --bg-tertiary: #1f1519;
-  --border: #3d2d33;
-  --text-primary: #e5d7db;
-  --text-secondary: #9a848a;
-  --text-link: #d4959e;
-  --active-bg: rgba(212, 149, 158, 0.12);
-  --danger: #e4606d;
-  --danger-bg: rgba(228, 96, 109, 0.12);
-  --success: #8c9e7a;
+[data-theme="photon"] {
+  --bg-primary: #f8fafd;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --border: #dde4ef;
+  --text-primary: #1a2332;
+  --text-secondary: #5f7090;
+  --text-link: #3b82c4;
+  --active-bg: rgba(59, 130, 196, 0.07);
+  --danger: #dc4a5c;
+  --danger-bg: rgba(220, 74, 92, 0.07);
+  --success: #3d9c6e;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CERAMIC · 陶瓷
-   Matte porcelain white, celadon jade shadows.
-   Tea ceremony stillness. Ink-wash clarity.
+   OBSIDIAN · 黑曜
+   Volcanic glass. Ultra-deep void,
+   sharp violet-teal. Orbital night ops.
    ═══════════════════════════════════════════════════════════ */
-[data-theme="ceramic"] {
-  --bg-primary: #faf9f6;
-  --bg-secondary: #fefdfb;
-  --bg-tertiary: #f2f1ec;
-  --border: #d5d2c9;
-  --text-primary: #2c2b26;
-  --text-secondary: #7a766b;
-  --text-link: #5d7a5d;
-  --active-bg: rgba(93, 122, 93, 0.07);
-  --danger: #c46b5a;
-  --danger-bg: rgba(196, 107, 90, 0.07);
-  --success: #5f7a52;
+[data-theme="obsidian"] {
+  --bg-primary: #06050c;
+  --bg-secondary: #0c0a14;
+  --bg-tertiary: #14101e;
+  --border: #221d30;
+  --text-primary: #e4e0f0;
+  --text-secondary: #8a80b0;
+  --text-link: #a78bfa;
+  --active-bg: rgba(167, 139, 250, 0.10);
+  --danger: #f0607c;
+  --danger-bg: rgba(240, 96, 124, 0.10);
+  --success: #5ec4a0;
+}
+
+html {
+  background: #0c0a09; /* Prevent white flash before CSS loads */
 }
 
 * {
@@ -127,6 +131,13 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
+}
+
+/* Dialog overlay — visible across all themes */
+[role="dialog"] ~ [data-slot="dialog-overlay"],
+.dialog-overlay {
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(2px);
 }
 
 /* Shared utility classes matching old style.css */

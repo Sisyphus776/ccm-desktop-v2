@@ -1,9 +1,9 @@
 export const themes = [
   { id: 'lacquer', name: 'Lacquer 漆器', nameCN: '漆器' },
   { id: 'alabaster', name: 'Alabaster 石膏', nameCN: '雪花石膏' },
-  { id: 'verdigris', name: 'Verdigris 铜绿', nameCN: '铜绿' },
-  { id: 'noir-rose', name: 'Noir Rose 暗玫', nameCN: '暗玫瑰' },
-  { id: 'ceramic', name: 'Ceramic 陶瓷', nameCN: '陶瓷' },
+  { id: 'slate', name: 'Slate 钛空', nameCN: '钛空' },
+  { id: 'photon', name: 'Photon 光量子', nameCN: '光量子' },
+  { id: 'obsidian', name: 'Obsidian 黑曜', nameCN: '黑曜' },
 ] as const;
 
 export type ThemeId = typeof themes[number]['id'];
