@@ -11,14 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const typeLabels: Record<string, string> = {
-  user: 'User',
-  feedback: 'Feedback',
-  project: 'Project',
-  reference: 'Reference',
+  user: '用户',
+  feedback: '反馈',
+  project: '项目',
+  reference: '参考',
 };
 
-function typeLabel(t: string) {
-  return typeLabels[t] || t;
+function typeLabel(tp: string) {
+  return typeLabels[tp] || tp;
 }
 
 export default function Memory() {
@@ -34,31 +34,33 @@ export default function Memory() {
   const [viewing, setViewing] = useState<MemoryFileItem | null>(null);
   const [viewContent, setViewContent] = useState('');
 
-  const { data: files = [], isLoading } = useQuery<MemoryFileItem[]>({
+  const { data: files, isLoading } = useQuery<MemoryFileItem[]>({
     queryKey: ['memory'],
     queryFn: () => rpcCall('memory.list'),
   });
+  const safeFiles = files || [];
 
   const { data: stats } = useQuery<MemoryStats>({
     queryKey: ['memory', 'stats'],
     queryFn: () => rpcCall('memory.stats'),
   });
 
-  const { data: issues = [] } = useQuery<IssueItem[]>({
+  const { data: issues } = useQuery<IssueItem[]>({
     queryKey: ['memory', 'validate'],
     queryFn: () => rpcCall('memory.validate'),
   });
+  const safeIssues = issues || [];
 
   const filtered = useMemo(() => {
-    if (!search) return files ?? [];
+    if (!search) return safeFiles;
     const q = search.toLowerCase();
-    return files.filter(
+    return safeFiles.filter(
       (f) =>
         (f.name || '').toLowerCase().includes(q) ||
         (f.description || '').toLowerCase().includes(q) ||
         (f.file || '').toLowerCase().includes(q),
     );
-  }, [files, search]);
+  }, [safeFiles, search]);
 
   function invalidate() {
     qc.invalidateQueries({ queryKey: ['memory'] });
@@ -71,27 +73,19 @@ export default function Memory() {
     onSuccess: (result: string) => {
       toast({ title: result });
       setShowCreate(false);
-      setMemName('');
-      setMemDesc('');
-      setMemContent('');
+      setMemName(''); setMemDesc(''); setMemContent('');
       invalidate();
     },
   });
 
   const viewMut = useMutation({
     mutationFn: (file: string) => rpcCall('memory.get_content', { file }),
-    onSuccess: (content: string) => {
-      setViewContent(content);
-    },
-    onError: (err: Error) => {
-      toast({ title: err.message, variant: 'destructive' });
-    },
+    onSuccess: (content: string) => setViewContent(content),
+    onError: (err: Error) => toast({ title: err.message, variant: 'destructive' }),
   });
 
   async function doView(f: MemoryFileItem) {
-    if (viewing?.file !== f.file) {
-      setViewContent('');
-    }
+    if (viewing?.file !== f.file) setViewContent('');
     setViewing(f);
     viewMut.mutate(f.file);
   }
@@ -101,14 +95,8 @@ export default function Memory() {
       if (!confirm(`确定删除 "${file}"？`)) throw new Error('cancelled');
       return rpcCall('memory.delete', { file });
     },
-    onSuccess: () => {
-      toast({ title: 'Deleted' });
-      setViewing(null);
-      invalidate();
-    },
-    onError: (err) => {
-      if (err.message !== 'cancelled') toast({ title: String(err), variant: 'destructive' });
-    },
+    onSuccess: () => { toast({ title: '已删除' }); setViewing(null); invalidate(); },
+    onError: (err) => { if (err.message !== 'cancelled') toast({ title: String(err), variant: 'destructive' }); },
   });
 
   return (
@@ -117,58 +105,46 @@ export default function Memory() {
         <h2>{t('memory.title')}</h2>
         <div className="flex gap-2">
           <Button size="sm" onClick={() => setShowCreate(!showCreate)}>
-            {showCreate ? 'Cancel' : '+ Create Memory'}
+            {showCreate ? t('common.cancel') : t('common.createMemory')}
           </Button>
-          <span className="refresh-hint self-center">{stats?.total ?? 0} entries</span>
+          <span className="refresh-hint self-center">{stats?.total ?? 0} 条</span>
         </div>
       </div>
 
-      {/* Create Form */}
       {showCreate && (
         <div className="card mb-4">
-          <h3 className="text-sm font-semibold mb-2">Create Memory</h3>
+          <h3 className="text-sm font-semibold mb-2">新建 Memory</h3>
           <div className="flex flex-col gap-2 mb-2">
             <Input value={memName} onChange={(e) => setMemName(e.target.value)} placeholder={t('common.name')} />
             <Select value={memType} onValueChange={setMemType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="feedback">Feedback</SelectItem>
-                <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="reference">Reference</SelectItem>
+                <SelectItem value="user">用户</SelectItem>
+                <SelectItem value="feedback">反馈</SelectItem>
+                <SelectItem value="project">项目</SelectItem>
+                <SelectItem value="reference">参考</SelectItem>
               </SelectContent>
             </Select>
-            <Input value={memDesc} onChange={(e) => setMemDesc(e.target.value)} placeholder={t('common.description')} />
-            <Textarea value={memContent} onChange={(e) => setMemContent(e.target.value)} placeholder={t('common.content')} rows={4} />
+            <Input value={memDesc} onChange={(e) => setMemDesc(e.target.value)} placeholder="简短描述" />
+            <Textarea value={memContent} onChange={(e) => setMemContent(e.target.value)} placeholder="正文内容" rows={4} />
           </div>
           <Button size="sm" onClick={() => createMut.mutate()} disabled={createMut.isPending}>
-            Create
+            {t('common.create')}
           </Button>
         </div>
       )}
 
-      {/* Content Viewer */}
       {viewing && (
         <div className="card mb-4">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-semibold">{viewing.name || viewing.file}</h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="destructive" onClick={() => deleteMut.mutate(viewing.file)}>
-                Delete
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setViewing(null)}>
-                Close
-              </Button>
+              <Button size="sm" variant="destructive" onClick={() => deleteMut.mutate(viewing.file)}>{t('common.delete')}</Button>
+              <Button size="sm" variant="outline" onClick={() => setViewing(null)}>{t('common.close')}</Button>
             </div>
           </div>
-          <p className="text-xs text-[var(--text-secondary)] my-1">
-            {typeLabel(viewing.type)} / {viewing.description}
-          </p>
-          <pre className="bg-[var(--bg-tertiary)] p-3 rounded-md text-xs max-h-[300px] overflow-y-auto whitespace-pre-wrap">
-            {viewContent}
-          </pre>
+          <p className="text-xs text-[var(--text-secondary)] my-1">{typeLabel(viewing.type)} / {viewing.description}</p>
+          <pre className="bg-[var(--bg-tertiary)] p-3 rounded-md text-xs max-h-[300px] overflow-y-auto whitespace-pre-wrap">{viewContent}</pre>
         </div>
       )}
 
@@ -176,11 +152,10 @@ export default function Memory() {
         <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <>
-          {/* Stats Grid */}
           {stats && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
               <div className="card text-center">
-                <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">Total</h3>
+                <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">总计</h3>
                 <div className="text-xl font-bold text-[var(--text-link)]">{stats.total}</div>
               </div>
               {Object.entries(stats.byType || {}).map(([type, count]) => (
@@ -193,23 +168,14 @@ export default function Memory() {
           )}
 
           <div className="mb-2">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('common.searchMemory')}
-              className="search-input"
-            />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索 Memory..." className="search-input" />
           </div>
 
           {filtered.length > 0 ? (
             <table>
               <thead>
                 <tr>
-                  <th>File</th>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Description</th>
-                  <th style={{ width: 80 }}>Actions</th>
+                  <th>文件</th><th>{t('common.name')}</th><th>{t('common.type')}</th><th>描述</th><th style={{ width: 80 }}>{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,30 +183,26 @@ export default function Memory() {
                   <tr key={f.file} className={cn(viewing?.file === f.file && 'bg-[var(--active-bg)]')}>
                     <td><code className="text-xs">{f.file}</code></td>
                     <td>{f.name || '-'}</td>
-                    <td><span className="tag tag-info">{typeLabel(f.type) || 'unknown'}</span></td>
+                    <td><span className="tag tag-info">{typeLabel(f.type) || '未知'}</span></td>
                     <td className="text-[var(--text-secondary)] text-xs">{f.description || '-'}</td>
                     <td>
-                      <Button size="sm" variant="outline" className="text-xs h-6 px-2 mr-1" onClick={() => doView(f)}>
-                        View
-                      </Button>
-                      <Button size="sm" variant="destructive" className="text-xs h-6 px-2" onClick={() => deleteMut.mutate(f.file)}>
-                        Delete
-                      </Button>
+                      <Button size="sm" variant="outline" className="text-xs h-6 px-2 mr-1" onClick={() => doView(f)}>{t('common.view')}</Button>
+                      <Button size="sm" variant="destructive" className="text-xs h-6 px-2" onClick={() => deleteMut.mutate(f.file)}>{t('common.delete')}</Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <div className="text-[var(--text-secondary)] text-sm">No memory files found</div>
+            <div className="text-[var(--text-secondary)] text-sm">暂无 Memory 文件</div>
           )}
         </>
       )}
 
-      {issues.length > 0 && (
+      {safeIssues.length > 0 && (
         <>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-6 mb-2">Validation Issues ({issues.length})</h3>
-          {issues.map((iss, i) => (
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-6 mb-2">验证问题 ({safeIssues.length})</h3>
+          {safeIssues.map((iss, i) => (
             <div key={i} className={cn(
               'p-3 rounded-md mb-2 text-sm',
               iss.severity === 'error' ? 'bg-[var(--danger-bg)] border border-[var(--danger)]' : 'bg-[var(--active-bg)] border border-[var(--text-link)]',
