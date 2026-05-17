@@ -207,7 +207,7 @@ export default function Skills() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search skills..."
+            placeholder={t('common.searchSkills')}
             className="search-input flex-1"
           />
           {checked.size > 0 && (
@@ -226,7 +226,7 @@ export default function Skills() {
       )}
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <div className="master-detail">
           <div className="master-list">

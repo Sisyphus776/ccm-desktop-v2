@@ -44,7 +44,7 @@ export default function Portability() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <>
           {report && (

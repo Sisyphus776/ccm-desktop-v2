@@ -17,7 +17,7 @@ export default function Secrets() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : secrets.length === 0 ? (
         <div className="text-[var(--text-secondary)] text-sm">No secrets detected</div>
       ) : (

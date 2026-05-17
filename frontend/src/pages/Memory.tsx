@@ -128,7 +128,7 @@ export default function Memory() {
         <div className="card mb-4">
           <h3 className="text-sm font-semibold mb-2">Create Memory</h3>
           <div className="flex flex-col gap-2 mb-2">
-            <Input value={memName} onChange={(e) => setMemName(e.target.value)} placeholder="Name" />
+            <Input value={memName} onChange={(e) => setMemName(e.target.value)} placeholder={t('common.name')} />
             <Select value={memType} onValueChange={setMemType}>
               <SelectTrigger>
                 <SelectValue />
@@ -140,8 +140,8 @@ export default function Memory() {
                 <SelectItem value="reference">Reference</SelectItem>
               </SelectContent>
             </Select>
-            <Input value={memDesc} onChange={(e) => setMemDesc(e.target.value)} placeholder="Short description" />
-            <Textarea value={memContent} onChange={(e) => setMemContent(e.target.value)} placeholder="Content" rows={4} />
+            <Input value={memDesc} onChange={(e) => setMemDesc(e.target.value)} placeholder={t('common.description')} />
+            <Textarea value={memContent} onChange={(e) => setMemContent(e.target.value)} placeholder={t('common.content')} rows={4} />
           </div>
           <Button size="sm" onClick={() => createMut.mutate()} disabled={createMut.isPending}>
             Create
@@ -173,7 +173,7 @@ export default function Memory() {
       )}
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <>
           {/* Stats Grid */}
@@ -196,7 +196,7 @@ export default function Memory() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search memory..."
+              placeholder={t('common.searchMemory')}
               className="search-input"
             />
           </div>

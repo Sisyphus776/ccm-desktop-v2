@@ -37,7 +37,7 @@ export default function Mcp() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : servers.length > 0 ? (
         <table>
           <thead>

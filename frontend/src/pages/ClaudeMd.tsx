@@ -32,7 +32,7 @@ export default function ClaudeMd() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <div className="master-detail">
           <div className="master-list">

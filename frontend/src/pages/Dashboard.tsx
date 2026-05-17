@@ -30,7 +30,7 @@ export default function Dashboard() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-[var(--text-secondary)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
