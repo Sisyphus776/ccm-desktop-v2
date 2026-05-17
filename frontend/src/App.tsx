@@ -57,6 +57,11 @@ function AppShell() {
   const qc = useQueryClient();
 
   useEffect(() => {
+    // Trigger async translation on startup
+    import('@/lib/rpc-client').then(({ rpcCall }) => {
+      rpcCall('translate.batch');
+    });
+
     const unsub = window.ccm.onNotify((method, params) => {
       if (method === 'config-changed') {
         const domain = params?.domain;
@@ -70,6 +75,11 @@ function AppShell() {
         } else {
           qc.invalidateQueries();
         }
+      }
+      if (method === 'translation-ready') {
+        const domain = params?.domain;
+        if (domain === 'skills') qc.invalidateQueries({ queryKey: ['skills'] });
+        if (domain === 'plugins') qc.invalidateQueries({ queryKey: ['plugins'] });
       }
     });
 

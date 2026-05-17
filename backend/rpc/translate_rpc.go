@@ -1,11 +1,55 @@
 package rpc
 
-// translateAll is a stub that signals translation has started.
-// Full implementation requires wiring the translate package to scan all skills and plugins,
-// then emit translation-ready notifications for each un-cached English description.
-// For now, the background goroutine simply completes immediately.
+import (
+	"ccm-desktop-v2/backend/internal/skills"
+	"ccm-desktop-v2/backend/internal/translate"
+)
+
+// translateAll scans all skills and plugins, translates un-cached English descriptions,
+// and emits translation-ready notifications as each completes.
 func translateAll(ctx *AppContext, h *Handler) {
-	// TODO: iterate skills.List(ctx.Cfg) and listPlugins(ctx),
-	// call translate.TranslateDescription for each un-cached description,
-	// then h.Notify("translation-ready", ...) per item.
+	// Translate skills
+	skillList, err := skills.List(ctx.Cfg)
+	if err == nil {
+		for _, sk := range skillList {
+			if sk.Frontmatter == nil || sk.Frontmatter.Description == "" {
+				continue
+			}
+			if translate.IsMostlyChinese(sk.Frontmatter.Description) {
+				continue
+			}
+			cn := translate.TranslateDescription(sk.Frontmatter.Description)
+			if cn != "" {
+				h.Notify("translation-ready", map[string]any{
+					"domain":        "skills",
+					"name":          sk.Frontmatter.Name,
+					"descriptionCN": cn,
+				})
+			}
+		}
+	}
+
+	// Translate plugin skills
+	pluginsRaw, err := listPlugins(ctx)
+	if err == nil && pluginsRaw != nil {
+		plugins, ok := pluginsRaw.([]PluginItem)
+		if ok {
+			for _, p := range plugins {
+			for _, s := range p.Skills {
+				if s.Description == "" || translate.IsMostlyChinese(s.Description) {
+					continue
+				}
+				cn := translate.TranslateDescription(s.Description)
+				if cn != "" {
+					h.Notify("translation-ready", map[string]any{
+						"domain":        "plugins",
+						"pluginName":    p.Name,
+						"name":          s.Name,
+						"descriptionCN": cn,
+					})
+				}
+				}
+			}
+		}
+	}
 }

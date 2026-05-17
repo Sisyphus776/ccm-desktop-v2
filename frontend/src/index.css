@@ -148,7 +148,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  min-height: 400px;
+  height: calc(100vh - 170px);
 }
 
 .master-list {
