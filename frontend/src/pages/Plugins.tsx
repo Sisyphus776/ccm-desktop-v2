@@ -49,9 +49,9 @@ export default function Plugins() {
     <div className="content">
       <div className="page-header">
         <h2>{t('plugins.title')}</h2>
-        <Button size="sm" variant="destructive" onClick={() => disableAllMut.mutate()}>Disable All</Button>
-        <Button size="sm" onClick={() => enableAllMut.mutate()}>Enable All</Button>
-        <span className="refresh-hint">{plugins.length} plugins / {totalSkills} skills</span>
+        <Button size="sm" variant="destructive" onClick={() => disableAllMut.mutate()}>一键禁用全部</Button>
+        <Button size="sm" onClick={() => enableAllMut.mutate()}>一键启用全部</Button>
+        <span className="refresh-hint">{plugins.length} 个插件 / {totalSkills} skills</span>
       </div>
 
       {isLoading ? (
@@ -78,7 +78,7 @@ export default function Plugins() {
                     className="ml-auto text-xs h-6 px-2"
                     onClick={(e) => { e.stopPropagation(); togglePluginMut.mutate(p); }}
                   >
-                    {p.disabled ? 'Enable' : 'Disable'}
+                    {p.disabled ? '启用' : '禁用'}
                   </Button>
                 </div>
                 <div className="master-item-sub">
@@ -113,7 +113,7 @@ export default function Plugins() {
                           })
                         }
                       >
-                        {s.disabled ? 'Enable' : 'Disable'}
+                        {s.disabled ? '启用' : '禁用'}
                       </Button>
                       <code>{s.invocation || '/' + s.name}</code>
                     </div>

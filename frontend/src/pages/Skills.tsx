@@ -130,7 +130,7 @@ export default function Skills() {
               setShowImport(false);
             }}
           >
-            {showCreate ? 'Cancel' : '+ Create'}
+            {showCreate ? t('common.cancel') : '+ 新建'}
           </Button>
           <Button
             size="sm"
@@ -140,9 +140,9 @@ export default function Skills() {
               setShowCreate(false);
             }}
           >
-            {showImport ? 'Cancel' : 'Import'}
+            {showImport ? t('common.cancel') : t('common.import')}
           </Button>
-          <span className="refresh-hint self-center">{skills.length} skills</span>
+          <span className="refresh-hint self-center">{skills.length} 个 Skill</span>
         </div>
       </div>
 
@@ -212,7 +212,7 @@ export default function Skills() {
           />
           {checked.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--text-secondary)]">{checked.size} selected</span>
+              <span className="text-xs text-[var(--text-secondary)]">{checked.size} 已选</span>
               <Button
                 size="sm"
                 variant="destructive"

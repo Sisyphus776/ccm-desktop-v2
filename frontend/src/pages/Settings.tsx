@@ -13,7 +13,7 @@ export default function Settings() {
   const qc = useQueryClient();
   const [currentTheme, setCurrentTheme] = useState(getTheme());
 
-  const { data: settings } = useQuery<AppSettings>({
+  const { data: settings, isLoading } = useQuery<AppSettings>({
     queryKey: ['settings'],
     queryFn: () => rpcCall('settings.get'),
   });
@@ -41,7 +41,8 @@ export default function Settings() {
       </div>
 
       <div className="space-y-3">
-        {settings && (
+        {isLoading && <div className="p-8 text-center text-[var(--text-secondary)]">{t('common.loading')}</div>}
+        {!isLoading && settings && (
           <>
             <div className="card">
               <div className="flex justify-between items-center">

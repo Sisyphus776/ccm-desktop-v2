@@ -26,7 +26,7 @@ export default function Dashboard() {
     <div className="content">
       <div className="page-header">
         <h2>{t('dashboard.title')}</h2>
-        <span className="refresh-hint">Auto-refresh</span>
+        <span className="refresh-hint">自动刷新</span>
       </div>
 
       {isLoading ? (
@@ -35,7 +35,7 @@ export default function Dashboard() {
         <>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
             <div className="card text-center">
-              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">Skills</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">Skill</h3>
               <div className="text-2xl font-bold text-[var(--text-link)]">{summary?.skillsCount ?? 0}</div>
             </div>
             <div className="card text-center">
@@ -47,13 +47,13 @@ export default function Dashboard() {
               <div className="text-2xl font-bold text-[var(--text-link)]">{summary?.mcpServers ?? 0}</div>
             </div>
             <div className="card text-center">
-              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">Warnings</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">警告</h3>
               <div className={cn('text-2xl font-bold', (summary?.warningCount ?? 0) > 0 ? 'text-[#d2a8ff]' : 'text-[var(--success)]')}>
                 {summary?.warningCount ?? 0}
               </div>
             </div>
             <div className="card text-center">
-              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">Errors</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-secondary)] uppercase mb-1">错误</h3>
               <div className={cn('text-2xl font-bold', (summary?.errorCount ?? 0) > 0 ? 'text-[var(--danger)]' : 'text-[var(--success)]')}>
                 {summary?.errorCount ?? 0}
               </div>
@@ -62,13 +62,13 @@ export default function Dashboard() {
 
           {skills && skills.length > 0 && (
             <>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Installed Skills</h3>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">已安装的 Skill</h3>
               <table className="mb-6">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Invocation</th>
-                    <th>Status</th>
+                    <th>{t('common.name')}</th>
+                    <th>调用指令</th>
+                    <th>{t('common.status')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -42,7 +42,7 @@ export default function Backup() {
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Create Backup</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">创建备份</h3>
           <div className="flex gap-2">
             <Input
               value={outputPath}
@@ -56,7 +56,7 @@ export default function Backup() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Restore Backup</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">恢复备份</h3>
           <div className="flex flex-col gap-2 mb-2">
             <Input
               value={zipPath}
