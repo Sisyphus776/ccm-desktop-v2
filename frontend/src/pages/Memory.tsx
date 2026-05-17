@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -82,16 +83,22 @@ export default function Memory() {
     onSuccess: (content: string) => {
       setViewContent(content);
     },
+    onError: (err: Error) => {
+      toast({ title: err.message, variant: 'destructive' });
+    },
   });
 
   async function doView(f: MemoryFileItem) {
+    if (viewing?.file !== f.file) {
+      setViewContent('');
+    }
     setViewing(f);
     viewMut.mutate(f.file);
   }
 
   const deleteMut = useMutation({
     mutationFn: (file: string) => {
-      if (!confirm(`Confirm delete "${file}"?`)) throw new Error('cancelled');
+      if (!confirm(`确定删除 "${file}"？`)) throw new Error('cancelled');
       return rpcCall('memory.delete', { file });
     },
     onSuccess: () => {
@@ -107,7 +114,7 @@ export default function Memory() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Memory Management</h2>
+        <h2>{t('memory.title')}</h2>
         <div className="flex gap-2">
           <Button size="sm" onClick={() => setShowCreate(!showCreate)}>
             {showCreate ? 'Cancel' : '+ Create Memory'}

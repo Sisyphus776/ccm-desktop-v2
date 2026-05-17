@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
 import type { MCPItem, IssueItem } from '@/lib/types';
@@ -31,7 +32,7 @@ export default function Mcp() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>MCP Services</h2>
+        <h2>{t('mcp.title')}</h2>
         <span className="refresh-hint">{servers?.length ?? 0} services</span>
       </div>
 

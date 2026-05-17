@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
 import type { DashboardSummary, SkillItem, IssueItem } from '@/lib/types';
@@ -24,7 +25,7 @@ export default function Dashboard() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Dashboard</h2>
+        <h2>{t('dashboard.title')}</h2>
         <span className="refresh-hint">Auto-refresh</span>
       </div>
 

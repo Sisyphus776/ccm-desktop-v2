@@ -36,6 +36,8 @@ export function Sidebar() {
   return (
     <>
       <aside className="flex flex-col items-center w-[52px] h-screen bg-[var(--bg-secondary)] border-r border-[var(--border)] py-3 shrink-0">
+        {/* Drag region for frameless window */}
+        <div className="w-full h-5 shrink-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
         {/* Nav icons */}
         <nav className="flex flex-col gap-1 flex-1">
           {navItems.map((item) => {

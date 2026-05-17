@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -36,7 +37,7 @@ export default function Backup() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Backup &amp; Restore</h2>
+        <h2>{t('backup.title')}</h2>
       </div>
 
       <div className="space-y-6">

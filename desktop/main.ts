@@ -6,7 +6,10 @@ let mainWindow: BrowserWindow | null = null;
 let goProcess: ChildProcess | null = null;
 let restartCount = 0;
 const MAX_RESTARTS = 3;
-let pendingResolve: ((line: string) => void) | null = null;
+const RPC_TIMEOUT = 30000; // 30s timeout per request
+
+// Map of request ID → { resolve, timer } for concurrent RPC support
+const pendingRequests = new Map<number, { resolve: (line: string) => void; timer: NodeJS.Timeout }>();
 let stdoutBuffer = '';
 
 function sendToGo(line: string) {
@@ -24,12 +27,15 @@ function handleGoStdout(data: Buffer) {
     try {
       const msg = JSON.parse(line);
       if (msg.id !== undefined) {
-        // Response to a pending request
-        if (pendingResolve) {
-          pendingResolve(JSON.stringify(msg));
-          pendingResolve = null;
+        // Response to a pending request — match by id
+        const entry = pendingRequests.get(msg.id);
+        if (entry) {
+          clearTimeout(entry.timer);
+          pendingRequests.delete(msg.id);
+          entry.resolve(JSON.stringify(msg));
         }
       } else if (msg.method === 'ready') {
+        restartCount = 0; // Reset on successful start
         mainWindow?.webContents.send('backend-ready');
       } else if (msg.method) {
         // Server notification
@@ -45,12 +51,18 @@ function startGoBackend(): ChildProcess {
   const exePath = path.join(__dirname, 'ccm-backend.exe');
   const proc = spawn(exePath, [], {
     stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true, // Fix: no console window flash
   });
 
   proc.stdout?.on('data', handleGoStdout);
 
   proc.stderr?.on('data', (data: Buffer) => {
     console.error('Go stderr:', data.toString());
+  });
+
+  proc.on('error', (err) => {
+    console.error('Failed to spawn Go backend:', err.message);
+    mainWindow?.webContents.send('backend-crash', `Cannot start backend: ${err.message}`);
   });
 
   proc.on('exit', (code) => {
@@ -76,6 +88,8 @@ function createWindow() {
     minHeight: 600,
     title: 'CCM — Claude Config Manager',
     backgroundColor: '#0a0a0a',
+    frame: false, // Custom title bar for theme sync
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -83,7 +97,6 @@ function createWindow() {
     },
   });
 
-  // In development, load Vite dev server
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');
   } else {
@@ -95,10 +108,22 @@ function createWindow() {
   });
 }
 
-// IPC handlers
+// IPC handlers — concurrent-safe RPC with Map<id, resolve> + timeout
 ipcMain.handle('rpc-request', async (_event, data: string) => {
-  return new Promise((resolve) => {
-    pendingResolve = resolve;
+  return new Promise<string>((resolve, reject) => {
+    let reqId: number;
+    try {
+      const req = JSON.parse(data);
+      reqId = req.id;
+    } catch {
+      reject(new Error('Invalid JSON-RPC request'));
+      return;
+    }
+    const timer = setTimeout(() => {
+      pendingRequests.delete(reqId);
+      reject(new Error(`RPC request ${reqId} timed out after ${RPC_TIMEOUT}ms`));
+    }, RPC_TIMEOUT);
+    pendingRequests.set(reqId, { resolve, timer });
     sendToGo(data);
   });
 });
@@ -111,6 +136,12 @@ app.whenReady().then(() => {
   createWindow();
 
   app.on('before-quit', () => {
+    // Clear all pending requests
+    for (const [id, entry] of pendingRequests) {
+      clearTimeout(entry.timer);
+      entry.resolve(JSON.stringify({ jsonrpc: '2.0', id, error: { code: -32603, message: 'App shutting down' } }));
+    }
+    pendingRequests.clear();
     if (goProcess) {
       goProcess.kill();
       goProcess = null;

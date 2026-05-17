@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -26,7 +27,7 @@ export default function ClaudeMd() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>CLAUDE.md Management</h2>
+        <h2>{t('claudemd.title')}</h2>
         <span className="refresh-hint">{mds?.length ?? 0} files</span>
       </div>
 

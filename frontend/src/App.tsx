@@ -2,8 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Toaster } from './components/ui/toaster';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, Component, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { initTheme } from './lib/theme';
+import { Button } from './components/ui/button';
+import { t } from './i18n';
+
+initTheme();
 
 const pages = {
   Dashboard: lazy(() => import('./pages/Dashboard')),
@@ -22,11 +27,37 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
 });
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
+          <div className="card text-center max-w-md">
+            <h2 className="text-lg font-semibold text-[var(--danger)] mb-2">页面出错了</h2>
+            <p className="text-sm text-[var(--text-secondary)] mb-4">{this.state.error?.message}</p>
+            <Button onClick={() => { this.setState({ hasError: false }); window.location.hash = '#/'; }}>
+              返回首页
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function AppShell() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    window.ccm.onNotify((method, params) => {
+    const unsub = window.ccm.onNotify((method, params) => {
       if (method === 'config-changed') {
         const domain = params?.domain;
         if (domain === 'skills') {
@@ -44,34 +75,39 @@ function AppShell() {
 
     const paths = ['/', '/skills', '/plugins', '/memory', '/mcp', '/claudemd', '/portability', '/secrets', '/backup', '/settings'];
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '9') {
         e.preventDefault();
         const idx = parseInt(e.key) - 1;
         if (idx < paths.length) window.location.hash = '#' + paths[idx];
       }
     };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => {
+      document.removeEventListener('keydown', handler);
+      unsub?.();
+    };
   }, [qc]);
 
   return (
     <div className="flex h-screen">
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-[var(--bg-primary)]">
-        <Suspense fallback={<div className="p-8 text-[var(--text-secondary)]">Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<pages.Dashboard />} />
-            <Route path="/skills" element={<pages.Skills />} />
-            <Route path="/plugins" element={<pages.Plugins />} />
-            <Route path="/memory" element={<pages.Memory />} />
-            <Route path="/mcp" element={<pages.Mcp />} />
-            <Route path="/claudemd" element={<pages.ClaudeMd />} />
-            <Route path="/portability" element={<pages.Portability />} />
-            <Route path="/secrets" element={<pages.Secrets />} />
-            <Route path="/backup" element={<pages.Backup />} />
-            <Route path="/settings" element={<pages.Settings />} />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="p-8 text-[var(--text-secondary)]">{t('common.loading')}</div>}>
+            <Routes>
+              <Route path="/" element={<pages.Dashboard />} />
+              <Route path="/skills" element={<pages.Skills />} />
+              <Route path="/plugins" element={<pages.Plugins />} />
+              <Route path="/memory" element={<pages.Memory />} />
+              <Route path="/mcp" element={<pages.Mcp />} />
+              <Route path="/claudemd" element={<pages.ClaudeMd />} />
+              <Route path="/portability" element={<pages.Portability />} />
+              <Route path="/secrets" element={<pages.Secrets />} />
+              <Route path="/backup" element={<pages.Backup />} />
+              <Route path="/settings" element={<pages.Settings />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <Toaster />
     </div>

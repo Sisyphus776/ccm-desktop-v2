@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -47,7 +48,7 @@ export default function Plugins() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Plugin Management</h2>
+        <h2>{t('plugins.title')}</h2>
         <Button size="sm" variant="destructive" onClick={() => disableAllMut.mutate()}>Disable All</Button>
         <Button size="sm" onClick={() => enableAllMut.mutate()}>Enable All</Button>
         <span className="refresh-hint">{plugins.length} plugins / {totalSkills} skills</span>

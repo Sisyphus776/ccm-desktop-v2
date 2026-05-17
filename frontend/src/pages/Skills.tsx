@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -120,7 +121,7 @@ export default function Skills() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Skills Management</h2>
+        <h2>{t('skills.title')}</h2>
         <div className="flex gap-2">
           <Button
             size="sm"

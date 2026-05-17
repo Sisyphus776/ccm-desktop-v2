@@ -5,21 +5,13 @@ import type { AppSettings } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-
-const themes = [
-  { id: 'oled-dark', name: 'OLED Dark', desc: 'Linear/Raycast style' },
-  { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Purple-blue gradient translucent' },
-  { id: 'warm-minimal', name: 'Warm Minimal', desc: 'Notion style' },
-  { id: 'neubrutalism', name: 'Neubrutalism', desc: 'Bold borders hard shadows' },
-  { id: 'terminal-green', name: 'Terminal Green', desc: 'Matrix retro' },
-];
+import { themes, getTheme, setTheme } from '@/lib/theme';
+import { t } from '@/i18n';
 
 export default function Settings() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [currentTheme, setCurrentTheme] = useState(
-    localStorage.getItem('ccm-theme') || 'oled-dark',
-  );
+  const [currentTheme, setCurrentTheme] = useState(getTheme());
 
   const { data: settings } = useQuery<AppSettings>({
     queryKey: ['settings'],
@@ -32,28 +24,29 @@ export default function Settings() {
       toast({ title: result });
       qc.invalidateQueries({ queryKey: ['settings'] });
     },
+    onError: (err: Error) => {
+      toast({ title: err.message, variant: 'destructive' });
+    },
   });
 
   function switchTheme(id: string) {
-    setCurrentTheme(id);
-    localStorage.setItem('ccm-theme', id);
-    document.documentElement.setAttribute('data-theme', id);
+    setCurrentTheme(id as typeof currentTheme);
+    setTheme(id as typeof currentTheme);
   }
 
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Settings</h2>
+        <h2>{t('settings.title')}</h2>
       </div>
 
       <div className="space-y-3">
-        {/* Directories */}
         {settings && (
           <>
             <div className="card">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-sm font-semibold">Claude Directory</h3>
+                  <h3 className="text-sm font-semibold">Claude {t('common.name')}</h3>
                   <div className="dim text-xs mt-1">{settings.claudeDir || 'Not set'}</div>
                 </div>
               </div>
@@ -62,46 +55,43 @@ export default function Settings() {
             <div className="card">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-sm font-semibold">Home Directory</h3>
+                  <h3 className="text-sm font-semibold">Home {t('common.name')}</h3>
                   <div className="dim text-xs mt-1">{settings.homeDir || 'Not set'}</div>
                 </div>
               </div>
             </div>
 
-            {/* Auto-start toggle */}
             <div className="card">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-sm font-semibold">Auto Start</h3>
-                  <div className="dim text-xs mt-1">Start on system boot</div>
+                  <h3 className="text-sm font-semibold">{t('common.autoStart')}</h3>
+                  <div className="dim text-xs mt-1">{t('common.autoStartDesc')}</div>
                 </div>
                 <Button
                   size="sm"
                   variant={settings.autoStart ? 'destructive' : 'default'}
                   onClick={() => autoStartMut.mutate(!settings.autoStart)}
                 >
-                  {settings.autoStart ? 'Disable' : 'Enable'}
+                  {settings.autoStart ? t('common.disable') : t('common.enable')}
                 </Button>
               </div>
             </div>
 
-            {/* Minimize to tray */}
             <div className="card">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-sm font-semibold">Minimize to Tray</h3>
-                  <div className="dim text-xs mt-1">Hide window to system tray</div>
+                  <h3 className="text-sm font-semibold">{t('common.minimizeToTray')}</h3>
+                  <div className="dim text-xs mt-1">{t('common.minimizeToTrayDesc')}</div>
                 </div>
                 <Button size="sm" variant="outline" onClick={() => window.ccm.minimize()}>
-                  Minimize
+                  {t('common.minimize')}
                 </Button>
               </div>
             </div>
           </>
         )}
 
-        {/* Theme selector */}
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-5">Theme</h3>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-5">{t('common.theme')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {themes.map((t) => (
             <div
@@ -116,23 +106,21 @@ export default function Settings() {
             >
               <div className={cn(
                 'h-12 rounded-md mb-2',
-                t.id === 'oled-dark' && 'bg-[#0a0e14] border border-[#1e2a3a]',
-                t.id === 'glassmorphism' && 'bg-gradient-to-br from-[#0f0f23] to-[#1a1a3e] border border-white/10',
-                t.id === 'warm-minimal' && 'bg-[#FFFBFA] border border-[#E6E4E1]',
-                t.id === 'neubrutalism' && 'bg-[#FEFAE0] border-[3px] border-black shadow-[3px_3px_0px_black]',
-                t.id === 'terminal-green' && 'bg-black border border-[#003300]',
+                t.id === 'oled' && 'bg-[#0a0a0a] border border-[#2a2a2a]',
+                t.id === 'frost' && 'bg-[#0d1117] border border-[#30363d]',
+                t.id === 'sepia' && 'bg-[#1e1a16] border border-[#3d3731]',
+                t.id === 'monochrome' && 'bg-[#0f0f0f] border border-[#333]',
+                t.id === 'neon' && 'bg-[#0a0a0f] border border-[#2a2a4a]',
               )} />
-              <div className="text-sm font-semibold">{t.name}</div>
-              <div className="text-xs text-[var(--text-secondary)] mt-1">{t.desc}</div>
+              <div className="text-sm font-semibold">{t.nameCN} {t.name}</div>
             </div>
           ))}
         </div>
 
-        {/* About */}
         <div className="card mt-4">
-          <h3 className="text-sm font-semibold">About</h3>
+          <h3 className="text-sm font-semibold">{t('common.about')}</h3>
           <div className="dim text-xs mt-1">
-            CCM Desktop v2.1 -- Lightweight Claude Config Manager -- 5 switchable themes
+            CCM Desktop v2 — Electron + Go + React + shadcn/ui
           </div>
         </div>
       </div>

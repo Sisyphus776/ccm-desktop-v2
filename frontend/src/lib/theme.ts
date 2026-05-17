@@ -14,13 +14,18 @@ export function getTheme(): ThemeId {
 
 export function setTheme(id: ThemeId) {
   localStorage.setItem('ccm-theme', id);
-  document.documentElement.setAttribute('data-theme', id === 'oled' ? '' : id);
-  // OLED is default (no data-theme attr), others set explicitly
+  if (id === 'oled') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', id);
+  }
 }
 
 export function initTheme() {
   const theme = getTheme();
-  if (theme !== 'oled') {
+  if (theme === 'oled') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
     document.documentElement.setAttribute('data-theme', theme);
   }
 }

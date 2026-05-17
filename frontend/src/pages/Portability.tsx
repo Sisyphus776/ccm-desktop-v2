@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
@@ -38,7 +39,7 @@ export default function Portability() {
   return (
     <div className="content">
       <div className="page-header">
-        <h2>Portability Analysis</h2>
+        <h2>{t('portability.title')}</h2>
         <span className="refresh-hint">Cross-machine migration assessment</span>
       </div>
 
