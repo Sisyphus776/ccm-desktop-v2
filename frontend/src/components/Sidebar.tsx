@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Wrench, Puzzle, Brain, Server, FileText,
-  Shield, Key, Archive, Settings, Minus, Power,
+  Shield, Key, Archive, Settings, Minus, Maximize2, Power,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -36,8 +36,12 @@ export function Sidebar() {
   return (
     <>
       <aside className="flex flex-col items-center w-[52px] h-screen bg-[var(--bg-secondary)] border-r border-[var(--border)] py-3 shrink-0">
-        {/* Drag region for frameless window */}
-        <div className="w-full h-5 shrink-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
+        {/* Drag region for frameless window — double-click to maximize */}
+        <div
+          className="w-full h-8 shrink-0"
+          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+          onDoubleClick={() => window.ccm.maximize()}
+        />
         {/* Nav icons */}
         <nav className="flex flex-col gap-1 flex-1">
           {navItems.map((item) => {
@@ -71,6 +75,13 @@ export function Sidebar() {
             className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <Minus size={18} />
+          </button>
+          <button
+            title="Maximize"
+            onClick={() => window.ccm.maximize()}
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+          >
+            <Maximize2 size={18} />
           </button>
           <button
             title="Quit"

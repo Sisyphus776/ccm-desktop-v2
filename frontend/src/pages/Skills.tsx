@@ -1,5 +1,5 @@
 import { t } from '@/i18n';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rpcCall } from '@/lib/rpc-client';
 import type { SkillItem, SkillDetailItem, IssueItem } from '@/lib/types';
@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export default function Skills() {
@@ -23,6 +22,14 @@ export default function Skills() {
   const [importLog, setImportLog] = useState('');
   const [search, setSearch] = useState('');
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; name: string } | null>(null);
+
+  // Close context menu on any click outside
+  useEffect(() => {
+    function close() { setCtxMenu(null); }
+    if (ctxMenu) document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [ctxMenu]);
 
   const { data: skills = [], isLoading } = useQuery<SkillItem[]>({
     queryKey: ['skills'],
@@ -80,6 +87,7 @@ export default function Skills() {
       qc.invalidateQueries({ queryKey: ['skills'] });
       qc.invalidateQueries({ queryKey: ['skills', 'validate'] });
     },
+    onError: (err: Error) => toast({ title: err.message, variant: 'destructive' }),
   });
 
   const createMut = useMutation({
@@ -91,17 +99,19 @@ export default function Skills() {
       setNewSkillDesc('');
       qc.invalidateQueries({ queryKey: ['skills'] });
     },
+    onError: (err: Error) => toast({ title: err.message, variant: 'destructive' }),
   });
 
   const importMut = useMutation({
     mutationFn: (url: string) => {
-      setImportLog('Cloning...\n');
+      setImportLog('正在克隆...\n');
       return rpcCall('skills.import', { url });
     },
     onSuccess: (result: string) => {
       toast({ title: result });
       qc.invalidateQueries({ queryKey: ['skills'] });
     },
+    onError: (err: Error) => toast({ title: err.message, variant: 'destructive' }),
   });
 
   const deleteMut = useMutation({
@@ -111,12 +121,32 @@ export default function Skills() {
       }
     },
     onSuccess: () => {
-      toast({ title: 'Deleted successfully' });
+      toast({ title: '已删除' });
       setChecked(new Set());
+      setCtxMenu(null);
       qc.invalidateQueries({ queryKey: ['skills'] });
       qc.invalidateQueries({ queryKey: ['skills', 'validate'] });
     },
+    onError: (err: Error) => toast({ title: err.message, variant: 'destructive' }),
   });
+
+  function onContextMenu(e: React.MouseEvent, name: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    setCtxMenu({ x: e.clientX, y: e.clientY, name });
+  }
+
+  function ctxToggle(name: string, disabled: boolean | undefined) {
+    toggleMut.mutate(name);
+    setCtxMenu(null);
+  }
+
+  function ctxDelete(name: string) {
+    deleteMut.mutate([name]);
+  }
+
+  const statusLabel = (status: string) =>
+    status === 'ok' ? '正常' : status === 'broken' ? '损坏' : '警告';
 
   return (
     <div className="content">
@@ -149,7 +179,7 @@ export default function Skills() {
       {/* Import Form */}
       {showImport && (
         <div className="card mb-4">
-          <h3 className="text-sm font-semibold mb-2">Import from GitHub</h3>
+          <h3 className="text-sm font-semibold mb-2">从 GitHub 导入</h3>
           <div className="flex gap-2 mb-2">
             <Input
               value={importURL}
@@ -163,7 +193,7 @@ export default function Skills() {
             onClick={() => importMut.mutate(importURL)}
             disabled={importMut.isPending || !importURL}
           >
-            {importMut.isPending ? 'Importing...' : 'Import'}
+            {importMut.isPending ? '导入中...' : '导入'}
           </Button>
           {importLog && (
             <pre className="bg-[#0a0a0a] text-[#00ff41] p-3 rounded-md text-xs max-h-[160px] overflow-y-auto mt-2 font-mono">
@@ -171,24 +201,23 @@ export default function Skills() {
             </pre>
           )}
           {importMut.data && <div className="text-sm text-[var(--text-secondary)] mt-2">{importMut.data}</div>}
-          {importMut.error && <div className="text-sm text-[var(--danger)] mt-2">{String(importMut.error)}</div>}
         </div>
       )}
 
       {/* Create Form */}
       {showCreate && (
         <div className="card mb-4">
-          <h3 className="text-sm font-semibold mb-2">Create Skill</h3>
+          <h3 className="text-sm font-semibold mb-2">新建 Skill</h3>
           <div className="flex flex-col gap-2 mb-2">
             <Input
               value={newSkillName}
               onChange={(e) => setNewSkillName(e.target.value)}
-              placeholder="Skill name (English)"
+              placeholder="Skill 名称（英文）"
             />
             <Input
               value={newSkillDesc}
               onChange={(e) => setNewSkillDesc(e.target.value)}
-              placeholder="Description / trigger keywords"
+              placeholder="描述 / 触发关键词"
             />
           </div>
           <Button
@@ -196,7 +225,7 @@ export default function Skills() {
             onClick={() => createMut.mutate()}
             disabled={createMut.isPending || !newSkillName}
           >
-            Create
+            创建
           </Button>
         </div>
       )}
@@ -212,13 +241,13 @@ export default function Skills() {
           />
           {checked.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--text-secondary)]">{checked.size} 已选</span>
+              <span className="text-xs text-[var(--text-secondary)]">{checked.size} 个已选</span>
               <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => deleteMut.mutate(Array.from(checked))}
               >
-                Delete Selected
+                删除所选
               </Button>
             </div>
           )}
@@ -232,7 +261,7 @@ export default function Skills() {
           <div className="master-list">
             {filtered.length === 0 ? (
               <div className="p-4 text-[var(--text-secondary)] text-sm">
-                {search ? 'No matching results' : 'No skills installed'}
+                {search ? '无匹配结果' : '无已安装 Skill'}
               </div>
             ) : (
               <>
@@ -244,6 +273,7 @@ export default function Skills() {
                     key={s.name}
                     className={cn('master-item', selectedName === s.name && 'active')}
                     onClick={() => setSelectedName(s.name)}
+                    onContextMenu={(e) => onContextMenu(e, s.name)}
                   >
                     <div className="master-item-row">
                       <Checkbox
@@ -270,11 +300,11 @@ export default function Skills() {
               <h3>{selected.name}</h3>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <div>
-                  <label className="text-xs text-[var(--text-secondary)]">Invocation</label>
+                  <label className="text-xs text-[var(--text-secondary)]">调用指令</label>
                   <div><code>{selected.invocation || '/' + selected.name}</code></div>
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-secondary)]">Type</label>
+                  <label className="text-xs text-[var(--text-secondary)]">类型</label>
                   <div className="text-sm">{selected.type}</div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -283,32 +313,32 @@ export default function Skills() {
                     variant={selected.disabled ? 'outline' : 'destructive'}
                     onClick={() => toggleMut.mutate(selected.name)}
                   >
-                    {selected.disabled ? 'Enable' : 'Disable'}
+                    {selected.disabled ? '启用' : '禁用'}
                   </Button>
-                  <label className="text-xs text-[var(--text-secondary)]">Status</label>
+                  <label className="text-xs text-[var(--text-secondary)]">状态</label>
                   <span className={cn(
                     'tag',
                     selected.status === 'ok' ? 'tag-ok' : selected.status === 'broken' ? 'tag-err' : 'tag-warn',
                   )}>
-                    {selected.status === 'ok' ? 'OK' : selected.status === 'broken' ? 'Broken' : 'Warning'}
+                    {statusLabel(selected.status)}
                   </span>
                 </div>
               </div>
               {selected.description && (
                 <div className="mt-3">
-                  <label className="text-xs text-[var(--text-secondary)]">Description</label>
+                  <label className="text-xs text-[var(--text-secondary)]">描述</label>
                   <p className="text-sm mt-1">{selected.description}</p>
                   {selected.descriptionCN && (
                     <p className="text-xs text-[var(--text-secondary)] mt-1">{selected.descriptionCN}</p>
                   )}
                   {!selected.descriptionCN && (
-                    <p className="text-xs text-[var(--text-secondary)] italic mt-1">(Original is Chinese)</p>
+                    <p className="text-xs text-[var(--text-secondary)] italic mt-1">（原文为中文）</p>
                   )}
                 </div>
               )}
               {selected.triggers?.length > 0 && (
                 <div className="mt-3">
-                  <label className="text-xs text-[var(--text-secondary)]">Trigger Keywords</label>
+                  <label className="text-xs text-[var(--text-secondary)]">触发关键词</label>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selected.triggers.map((t) => (
                       <span key={t} className="bg-[var(--bg-tertiary)] px-2 py-0.5 rounded text-xs">{t}</span>
@@ -318,13 +348,13 @@ export default function Skills() {
               )}
               {selected.target && (
                 <div className="mt-3">
-                  <label className="text-xs text-[var(--text-secondary)]">Target Path</label>
+                  <label className="text-xs text-[var(--text-secondary)]">目标路径</label>
                   <div><code className="text-xs text-[var(--text-secondary)]">{selected.target}</code></div>
                 </div>
               )}
               {detail?.errors?.length ? (
                 <div className="mt-3 p-3 bg-[var(--danger-bg)] border border-[var(--danger)] rounded-md">
-                  <h4 className="text-sm font-semibold text-[var(--danger)] mb-1">{detail.errors.length} errors</h4>
+                  <h4 className="text-sm font-semibold text-[var(--danger)] mb-1">{detail.errors.length} 个错误</h4>
                   <ul className="list-disc list-inside text-xs space-y-1">
                     {detail.errors.map((e, i) => <li key={i}>{e}</li>)}
                   </ul>
@@ -332,14 +362,14 @@ export default function Skills() {
               ) : null}
             </div>
           ) : (
-            <div className="detail-panel empty-panel">Select a skill to view details</div>
+            <div className="detail-panel empty-panel">选择一个 Skill 查看详情</div>
           )}
         </div>
       )}
 
       {issues.length > 0 && (
         <>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-6 mb-2">Validation Issues ({issues.length})</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mt-6 mb-2">验证问题 ({issues.length})</h3>
           {issues.map((iss, i) => (
             <div key={i} className={cn(
               'p-3 rounded-md mb-2 text-sm',
@@ -352,6 +382,25 @@ export default function Skills() {
           ))}
         </>
       )}
+
+      {/* Context Menu */}
+      {ctxMenu && (() => {
+        const s = skills.find((sk) => sk.name === ctxMenu.name);
+        return (
+          <div
+            className="context-menu"
+            style={{ left: ctxMenu.x, top: ctxMenu.y }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => ctxToggle(ctxMenu.name, s?.disabled)}>
+              {s?.disabled ? '启用' : '禁用'}
+            </button>
+            <button className="danger" onClick={() => ctxDelete(ctxMenu.name)}>
+              删除
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }

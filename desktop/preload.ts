@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('ccm', {
   },
 
   minimize: () => ipcRenderer.send('window-minimize'),
+  maximize: () => ipcRenderer.send('window-maximize'),
   quit: () => ipcRenderer.send('window-quit'),
 
   onBackendReady: (callback: () => void) => {

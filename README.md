@@ -37,7 +37,9 @@ Claude Code 桌面配置管理器。可视化管理 Skills、Plugins、Memory、
 
 1. 从 [Releases](../../releases) 下载 `ccm-desktop-v2.1-portable.zip`
 2. 解压到任意目录
-3. 双击 `CCM Desktop v2.1.lnk` 启动
+3. 首次运行双击 `setup.bat`（安装 Electron 运行时，仅需一次）
+4. 之后每次双击 `CCM Desktop v2.1.exe` 启动
+5. 也可右键 `CCM Desktop v2.1.exe` → 发送到桌面快捷方式
 
 ## 从源码构建
 

@@ -91,6 +91,21 @@ func RegisterAll(h *Handler, ctx *AppContext) {
 		json.Unmarshal(p, &params)
 		return getClaudeMDContent(ctx, params.Path)
 	})
+	h.Register("claudemd.create", func(p json.RawMessage) (any, error) {
+		var params struct{ Path, Content string }
+		json.Unmarshal(p, &params)
+		return createClaudeMD(ctx, params.Path, params.Content)
+	})
+	h.Register("claudemd.update", func(p json.RawMessage) (any, error) {
+		var params struct{ Path, Content string }
+		json.Unmarshal(p, &params)
+		return updateClaudeMD(ctx, params.Path, params.Content)
+	})
+	h.Register("claudemd.delete", func(p json.RawMessage) (any, error) {
+		var params struct{ Path string }
+		json.Unmarshal(p, &params)
+		return deleteClaudeMD(ctx, params.Path)
+	})
 	h.Register("portability.report", func(p json.RawMessage) (any, error) { return getPortabilityReport(ctx) })
 	h.Register("portability.fix_path", func(p json.RawMessage) (any, error) {
 		var params struct{ OldPath, NewPath string }

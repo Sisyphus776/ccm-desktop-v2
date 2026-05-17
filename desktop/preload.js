@@ -9,6 +9,7 @@ electron_1.contextBridge.exposeInMainWorld('ccm', {
         return () => electron_1.ipcRenderer.removeListener('rpc-notify', handler);
     },
     minimize: () => electron_1.ipcRenderer.send('window-minimize'),
+    maximize: () => electron_1.ipcRenderer.send('window-maximize'),
     quit: () => electron_1.ipcRenderer.send('window-quit'),
     onBackendReady: (callback) => {
         const handler = () => callback();

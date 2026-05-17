@@ -156,6 +156,14 @@ electron_1.ipcMain.handle('rpc-request', async (_event, data) => {
     });
 });
 electron_1.ipcMain.on('window-minimize', () => mainWindow?.minimize());
+electron_1.ipcMain.on('window-maximize', () => {
+    if (mainWindow?.isMaximized()) {
+        mainWindow.unmaximize();
+    }
+    else {
+        mainWindow?.maximize();
+    }
+});
 electron_1.ipcMain.on('window-quit', () => electron_1.app.quit());
 electron_1.app.whenReady().then(() => {
     goProcess = startGoBackend();

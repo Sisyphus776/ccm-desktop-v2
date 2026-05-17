@@ -129,6 +129,13 @@ ipcMain.handle('rpc-request', async (_event, data: string) => {
 });
 
 ipcMain.on('window-minimize', () => mainWindow?.minimize());
+ipcMain.on('window-maximize', () => {
+  if (mainWindow?.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow?.maximize();
+  }
+});
 ipcMain.on('window-quit', () => app.quit());
 
 app.whenReady().then(() => {
