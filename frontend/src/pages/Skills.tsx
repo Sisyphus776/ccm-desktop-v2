@@ -336,7 +336,7 @@ export default function Skills() {
                   )}
                 </div>
               )}
-              {selected.triggers?.length > 0 && (
+              {(selected.triggers && selected.triggers.length > 0) && (
                 <div className="mt-3">
                   <label className="text-xs text-[var(--text-secondary)]">触发关键词</label>
                   <div className="flex flex-wrap gap-1 mt-1">

@@ -62,8 +62,10 @@ func List(cfg *config.Config) ([]MCPServer, error) {
 	}
 
 	loadMCPFromSettings(cfg.SettingsJSON, "user")
-	// 3. ~/.claude/settings.local.json — local overrides (take precedence)
+	// 3. ~/.claude/settings.local.json — local overrides
 	loadMCPFromSettings(cfg.SettingsLocal, "user-local")
+	// 4. ~/.claude/.mcp.json — project-level MCP config
+	loadMCPFromSettings(filepath.Join(cfg.ClaudeDir, ".mcp.json"), "project")
 
 	return servers, nil
 }

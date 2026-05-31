@@ -40,15 +40,31 @@ func List(cfg *config.Config) ([]Skill, error) {
 		return skills, nil
 	}
 
-	// Recursively walk the skills directory. Each skill is a directory
-	// containing SKILL.md (or a standalone .md/.yml file).
+	// First, scan top-level entries for symlinks (WalkDir doesn't follow them).
+	topEntries, _ := os.ReadDir(cfg.SkillsDir)
+	processedDirs := map[string]bool{}
+
+	for _, entry := range topEntries {
+		entryPath := filepath.Join(cfg.SkillsDir, entry.Name())
+
+		// Symlinks — WalkDir won't enter them, process here
+		if isSymlink(entryPath) {
+			skill := detectSkill(entryPath, entry)
+			skills = append(skills, skill)
+			if entry.IsDir() {
+				processedDirs[entryPath] = true
+			}
+		}
+	}
+
+	// Now walk the directory tree for directory-type and standalone-file skills.
 	filepath.WalkDir(cfg.SkillsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil // skip inaccessible entries
+			return nil
 		}
 		name := d.Name()
 
-		// Skip hidden files/dirs (except .md, .yml, .yaml files)
+		// Skip hidden files/dirs
 		if name != "" && name[0] == '.' && !strings.HasSuffix(name, ".md") && !strings.HasSuffix(name, ".yml") && !strings.HasSuffix(name, ".yaml") && !strings.HasSuffix(name, ".disabled") {
 			if d.IsDir() {
 				return filepath.SkipDir
@@ -56,11 +72,17 @@ func List(cfg *config.Config) ([]Skill, error) {
 			return nil
 		}
 
-		// If we find SKILL.md (or .yml equivalent) in a directory, that directory is a skill root
+		// Skip symlinks already processed above
+		if processedDirs[path] || isSymlink(path) {
+			if d.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// SKILL.md / SKILL.yml inside a directory = skill root
 		if isSkillFile(name) {
 			dir := filepath.Dir(path)
-			// Skip if this dir was already added as a skill (avoid duplicates
-			// when a dir has both SKILL.md and SKILL.yml)
 			for _, existing := range skills {
 				if existing.Path == dir {
 					return nil
@@ -68,7 +90,19 @@ func List(cfg *config.Config) ([]Skill, error) {
 			}
 			skill := detectSkill(dir, nil)
 			skills = append(skills, skill)
-			return filepath.SkipDir // don't recurse into skill dirs
+			return filepath.SkipDir
+		}
+
+		// Standalone .md / .yml / .yaml file (not named SKILL)
+		ext := filepath.Ext(name)
+		lowerName := strings.ToLower(name)
+		if (ext == ".md" || ext == ".yml" || ext == ".yaml") && !strings.HasPrefix(lowerName, "skill.") {
+			// Also handle .disabled suffix
+			if !d.IsDir() {
+				skill := detectSkill(path, d)
+				skills = append(skills, skill)
+				return nil
+			}
 		}
 
 		return nil
@@ -172,16 +206,17 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 		return skill
 	}
 
-	// Standalone .md / .yml / .yaml file
-	if isSkillFile(name) {
-		baseName := name
+	// Standalone .md / .yml / .yaml file — any markdown/yaml file
+	ext := strings.ToLower(filepath.Ext(name))
+	if ext == ".md" || ext == ".yml" || ext == ".yaml" {
 		disabled := false
+		baseName := name
 		if strings.HasSuffix(baseName, ".disabled") {
 			baseName = strings.TrimSuffix(baseName, ".disabled")
 			disabled = true
 		}
 		skill := Skill{
-			Name:       filepath.Base(path[:len(path)-len(filepath.Ext(path))]),
+			Name:       strings.TrimSuffix(baseName, ext),
 			Path:       path,
 			Type:       SkillTypeStandaloneMD,
 			SkillMD:    path,
