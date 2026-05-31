@@ -2,7 +2,7 @@ package rpc
 
 import (
 	"encoding/json"
-	"ccm-desktop-v2/backend/internal/config"
+	"ccm-desktop-v2/internal/config"
 )
 
 type AppContext struct {
@@ -132,7 +132,7 @@ func RegisterAll(h *Handler, ctx *AppContext) {
 		return setTranslateConfig(params.AppID, params.SecretKey), nil
 	})
 	h.Register("translate.batch", func(p json.RawMessage) (any, error) {
-		go translateAll(ctx, h)
+		go TranslateAll(ctx, h)
 		return "started", nil
 	})
 	h.Register("settings.get", func(p json.RawMessage) (any, error) { return getSettings(ctx) })

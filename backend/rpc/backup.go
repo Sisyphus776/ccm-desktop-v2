@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"ccm-desktop-v2/backend/internal/backup"
+	"ccm-desktop-v2/internal/backup"
 )
 
 func createBackup(ctx *AppContext, outputPath string) (any, error) {

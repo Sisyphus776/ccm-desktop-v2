@@ -97,7 +97,10 @@ export default function Settings() {
                   <h3 className="text-sm font-semibold">{t('common.minimizeToTray')}</h3>
                   <div className="dim text-xs mt-1">{t('common.minimizeToTrayDesc')}</div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => window.ccm.minimize()}>
+                <Button size="sm" variant="outline" onClick={() => {
+                  if (window.runtime) window.runtime.WindowMinimise();
+                  else window.ccm?.minimize();
+                }}>
                   {t('common.minimize')}
                 </Button>
               </div>

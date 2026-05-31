@@ -1,8 +1,8 @@
-# CCM Desktop v2.1
+# CCM Desktop v2
 
 Claude Code 桌面配置管理器。可视化管理 Skills、Plugins、Memory、MCP、CLAUDE.md，支持可移植性分析、密钥扫描、备份恢复。
 
-**Electron + Go + React + shadcn/ui**
+**Wails v2 + Go + React + shadcn/ui**
 
 ![Theme](https://img.shields.io/badge/themes-5-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)
 
@@ -12,40 +12,32 @@ Claude Code 桌面配置管理器。可视化管理 Skills、Plugins、Memory、
 - **插件管理** — 查看所有插件及 Skill，一键/单个启用禁用
 - **Memory 管理** — 创建/查看/删除 Memory，按类型统计，搜索过滤
 - **MCP 管理** — 列出 MCP 服务器、状态检查、启用/禁用
-- **CLAUDE.md** — 浏览所有层级 CLAUDE.md 内容
+- **CLAUDE.md** — 浏览、创建、编辑、删除所有层级 CLAUDE.md
 - **可移植性分析** — 检测跨电脑迁移问题，一键修复绝对路径
 - **密钥扫描** — 扫描配置文件中的 API Key/Token
 - **备份恢复** — ZIP 打包备份、一键还原
-- **中文翻译** — 内置 41 条种子翻译 + Youdao API，Skill 描述自动中文化
+- **中文翻译** — 百度翻译 API（免费 200 万字符/月），Skill 描述自动中文化
 - **5 套主题** — Lacquer 漆器、Alabaster 石膏、Slate 钛空、Photon 光量子、Obsidian 黑曜
-- **键盘快捷键** — `Ctrl+1`~`Ctrl+9` 切换页面，`Ctrl+F` 搜索
-- **系统托盘** — 最小化到托盘，窗口标题显示状态计数
+- **键盘快捷键** — `Ctrl+1`~`Ctrl+9` 切换页面
+- **文件监听** — 外部文件变化自动刷新 UI
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
-| 桌面框架 | Electron 33 |
+| 桌面框架 | Wails v2 |
 | 后端 | Go 1.23 |
 | 前端 | React 18 + TypeScript |
 | UI 组件 | shadcn/ui + Tailwind CSS |
 | 状态管理 | TanStack Query |
-| 通信协议 | JSON-RPC 2.0 (stdin/stdout) |
-| 翻译 | Youdao API + 内置种子词库 |
+| 通信 | Wails 运行时绑定 |
+| 翻译 | 百度翻译 API |
+| 打包 | 单 exe (12MB) |
 
-## 快速使用（便携版）
+## 快速使用
 
-1. 从 [Releases](../../releases) 下载 `ccm-desktop-v2.1-portable.zip`
-2. 解压到任意目录
-3. 首次运行双击 `setup.bat`（安装 Electron 运行时，仅需一次）
-4. 之后每次双击 `CCM Desktop v2.1.exe` 启动
-5. 也可右键 `CCM Desktop v2.1.exe` → 发送到桌面快捷方式
-
-> **自包含安装包**：运行 `npm run dist` 可生成单文件 `.exe` 安装器（含 Electron + Go + 前端，安装即用，零依赖）。
-
-## 百度翻译 API（可选）
-
-Settings 页面可配置百度翻译 API 凭证（注册 [fanyi-api.baidu.com](https://fanyi-api.baidu.com)，免费 200 万字符/月）。配置后 Skill 描述自动中文化。
+1. 从 [Releases](../../releases) 下载最新 `CCM Desktop.exe`
+2. 双击运行（无需安装，无需 npm，单个文件）
 
 ## 从源码构建
 
@@ -53,6 +45,7 @@ Settings 页面可配置百度翻译 API 凭证（注册 [fanyi-api.baidu.com](h
 
 - [Go](https://go.dev/dl/) 1.23+
 - [Node.js](https://nodejs.org/) 18+
+- [Wails v2](https://wails.io/docs/gettingstarted/installation) CLI
 - Windows 10/11
 
 ### 构建步骤
@@ -65,39 +58,43 @@ cd ccm-desktop-v2
 # 2. 安装依赖
 npm install
 
-# 3. 编译 Go 后端
-cd backend
-go build -ldflags="-H windowsgui" -o ../desktop/ccm-backend.exe ./cmd/ccm-backend
-cd ..
-
-# 4. 构建前端
+# 3. 构建前端 (Vite)
 npm run build -w frontend
 
-# 5. 编译 Electron
-npm run build -w desktop
-
-# 6. 启动
-npx electron desktop/main.js
+# 4. Wails 构建 (Go + 前端 → 单 exe)
+wails build
 ```
+
+输出文件: `build/bin/CCM Desktop.exe` (~12MB)
+
+## 百度翻译 API（可选）
+
+Settings 页面可配置百度翻译 API 凭证（注册 [fanyi-api.baidu.com](https://fanyi-api.baidu.com)，免费 200 万字符/月）。配置后 Skill 描述自动中文化。
 
 ## 项目结构
 
 ```
 ccm-desktop-v2/
-├── backend/                 # Go 后端
-│   ├── cmd/ccm-backend/     # 入口
-│   ├── rpc/                 # JSON-RPC 方法
-│   └── internal/            # 核心逻辑（skills, memory, mcp, translate...）
-├── desktop/                 # Electron 主进程
-│   ├── main.ts              # 窗口管理 + Go 生命周期
-│   └── preload.ts           # IPC 桥接
-├── frontend/                # React 前端
+├── main.go                   # Wails 入口
+├── app.go                    # Go 后端方法绑定
+├── wails.json                # Wails 构建配置
+├── frontend/                 # React 前端
 │   └── src/
-│       ├── pages/           # 10 个页面
-│       ├── components/      # Sidebar + shadcn/ui
-│       ├── lib/             # RPC client, types, theme
-│       └── i18n/            # 中英双语
-└── package.json             # npm workspaces
+│       ├── pages/            # 10 个页面
+│       ├── components/       # Sidebar + shadcn/ui
+│       ├── lib/              # RPC client, types, theme, Wails bindings
+│       └── i18n/             # 中英双语
+├── backend/                  # Go 后端
+│   ├── rpc/                  # 业务方法 (skills, plugins, memory, mcp...)
+│   └── cmd/ccm-backend/      # CLI 入口 (调试用)
+├── internal/                 # Go 核心逻辑
+│   ├── skills/               # Skill 发现、验证
+│   ├── plugins/              # 插件扫描
+│   ├── memory/               # Memory 管理
+│   ├── mcp/                  # MCP 配置
+│   ├── translate/            # 百度翻译
+│   └── ...                   # 其他包
+└── package.json              # npm workspaces
 ```
 
 ## 许可证

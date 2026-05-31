@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"ccm-desktop-v2/backend/internal/claudemd"
-	"ccm-desktop-v2/backend/internal/fsutil"
+	"ccm-desktop-v2/internal/claudemd"
+	"ccm-desktop-v2/internal/fsutil"
 )
 
 type ClaudeMDItem struct {

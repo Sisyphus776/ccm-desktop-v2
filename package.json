@@ -1,15 +1,10 @@
 {
   "name": "ccm-desktop-v2",
   "private": true,
-  "workspaces": ["desktop", "frontend"],
+  "workspaces": ["frontend"],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w desktop\"",
-    "build": "npm run build -w frontend && npm run build -w desktop && electron-builder",
-    "dist": "npm run build -w frontend && npm run build -w desktop && electron-builder",
-    "go:build": "cd backend && go build -ldflags=\"-H windowsgui\" -o ../desktop/ccm-backend.exe ./cmd/ccm-backend"
-  },
-  "devDependencies": {
-    "concurrently": "^9.0.0",
-    "electron-builder": "^25.0.0"
+    "dev": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "dist": "wails build"
   }
 }

@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ccm-desktop-v2/backend/internal/fsutil"
-	"ccm-desktop-v2/backend/internal/parser"
-	"ccm-desktop-v2/backend/internal/translate"
+	"ccm-desktop-v2/internal/fsutil"
+	"ccm-desktop-v2/internal/parser"
+	"ccm-desktop-v2/internal/translate"
 )
 
 type PluginItem struct {

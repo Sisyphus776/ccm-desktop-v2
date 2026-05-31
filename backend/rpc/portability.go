@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"ccm-desktop-v2/backend/internal/claudemd"
-	"ccm-desktop-v2/backend/internal/mcp"
-	"ccm-desktop-v2/backend/internal/report"
+	"ccm-desktop-v2/internal/claudemd"
+	"ccm-desktop-v2/internal/mcp"
+	"ccm-desktop-v2/internal/report"
 )
 
 type PortabilityResult struct {

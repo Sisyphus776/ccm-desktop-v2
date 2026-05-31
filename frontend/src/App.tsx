@@ -62,7 +62,7 @@ function AppShell() {
       rpcCall('translate.batch');
     });
 
-    const unsub = window.ccm.onNotify((method, params) => {
+    const handleNotify = (method: string, params: any) => {
       if (method === 'config-changed') {
         const domain = params?.domain;
         if (domain === 'skills') {
@@ -81,8 +81,22 @@ function AppShell() {
         if (domain === 'skills') qc.invalidateQueries({ queryKey: ['skills'] });
         if (domain === 'plugins') qc.invalidateQueries({ queryKey: ['plugins'] });
       }
-    });
+    };
 
+    // Wails events
+    let unsubWails: (() => void) | undefined;
+    if (window.runtime?.EventsOn) {
+      unsubWails = window.runtime.EventsOn('config-changed', (params: any) => handleNotify('config-changed', params));
+      window.runtime.EventsOn('translation-ready', (params: any) => handleNotify('translation-ready', params));
+    }
+
+    // Electron mode (backward compat)
+    let unsubElectron: (() => void) | undefined;
+    if (window.ccm?.onNotify) {
+      unsubElectron = window.ccm.onNotify((method, params) => handleNotify(method, params));
+    }
+
+    // Keyboard shortcuts: Ctrl+1-9 for tab navigation
     const paths = ['/', '/skills', '/plugins', '/memory', '/mcp', '/claudemd', '/portability', '/secrets', '/backup', '/settings'];
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '9') {
@@ -94,7 +108,8 @@ function AppShell() {
     document.addEventListener('keydown', handler);
     return () => {
       document.removeEventListener('keydown', handler);
-      unsub?.();
+      unsubWails?.();
+      unsubElectron?.();
     };
   }, [qc]);
 

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"ccm-desktop-v2/backend/internal/mcp"
+	"ccm-desktop-v2/internal/mcp"
 )
 
 type MCPItem struct {

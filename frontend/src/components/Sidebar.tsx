@@ -36,11 +36,13 @@ export function Sidebar() {
   return (
     <>
       <aside className="flex flex-col items-center w-[52px] h-screen bg-[var(--bg-secondary)] border-r border-[var(--border)] py-3 shrink-0">
-        {/* Drag region for frameless window — double-click to maximize */}
+        {/* Drag region — Wails has native title bar but we keep spacing for symmetry */}
         <div
           className="w-full h-8 shrink-0"
-          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-          onDoubleClick={() => window.ccm.maximize()}
+          onDoubleClick={() => {
+            if (window.runtime?.WindowMaximise) window.runtime.WindowMaximise();
+            else window.ccm?.maximize();
+          }}
         />
         {/* Nav icons */}
         <nav className="flex flex-col gap-1 flex-1">
@@ -71,14 +73,14 @@ export function Sidebar() {
         <div className="flex flex-col gap-1">
           <button
             title="Minimize"
-            onClick={() => window.ccm.minimize()}
+            onClick={() => window.runtime ? window.runtime.WindowMinimise() : window.ccm?.minimize()}
             className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <Minus size={18} />
           </button>
           <button
             title="Maximize"
-            onClick={() => window.ccm.maximize()}
+            onClick={() => window.runtime ? window.runtime.WindowMaximise() : window.ccm?.maximize()}
             className="w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             <Maximize2 size={18} />
@@ -109,7 +111,8 @@ export function Sidebar() {
             <Button
               variant="destructive"
               onClick={() => {
-                window.ccm.quit();
+                if (window.runtime) window.runtime.Quit();
+                else window.ccm?.quit();
                 setShowQuit(false);
               }}
             >

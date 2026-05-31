@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ccm-desktop-v2/backend/internal/fsutil"
-	"ccm-desktop-v2/backend/internal/memory"
+	"ccm-desktop-v2/internal/fsutil"
+	"ccm-desktop-v2/internal/memory"
 )
 
 type MemoryFileItem struct {

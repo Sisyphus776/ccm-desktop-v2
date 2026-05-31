@@ -41,17 +41,18 @@ const (
 )
 
 type MethodFn func(params json.RawMessage) (any, error)
+type EmitFunc func(method string, params map[string]any)
 
 type Handler struct {
 	mu       sync.RWMutex
 	methods  map[string]MethodFn
-	notifyCh chan map[string]any
+	emitFunc EmitFunc
 }
 
-func NewHandler(notifyCh chan map[string]any) *Handler {
+func NewHandler(emitFunc EmitFunc) *Handler {
 	return &Handler{
 		methods:  make(map[string]MethodFn),
-		notifyCh: notifyCh,
+		emitFunc: emitFunc,
 	}
 }
 
@@ -62,18 +63,12 @@ func (h *Handler) Register(method string, fn MethodFn) {
 }
 
 func (h *Handler) Notify(method string, params map[string]any) {
-	if h.notifyCh == nil {
-		return
-	}
-	msg := map[string]any{"method": method, "params": params}
-	select {
-	case h.notifyCh <- msg:
-	default:
-		// Queue full — drop silently rather than blocking the caller
+	if h.emitFunc != nil {
+		h.emitFunc(method, params)
 	}
 }
 
-func (h *Handler) handleRaw(line []byte) []byte {
+func (h *Handler) HandleRaw(line []byte) []byte {
 	var req Request
 	if err := json.Unmarshal(line, &req); err != nil {
 		return errorResponse(nil, ErrParse, "invalid JSON")
@@ -81,7 +76,6 @@ func (h *Handler) handleRaw(line []byte) []byte {
 	if req.JSONRPC != "2.0" {
 		return errorResponse(req.ID, ErrInvalid, "jsonrpc must be 2.0")
 	}
-	// Notification (no id) — ignore from client
 	if req.ID == nil {
 		return nil
 	}
@@ -111,37 +105,21 @@ func successResponse(id any, result any) []byte {
 }
 
 // RunLoop reads JSON-RPC lines from stdin, writes responses to stdout.
+// Used in Electron mode (cmd/ccm-backend).
 func (h *Handler) RunLoop() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
-	// Send ready notification
 	fmt.Println(`{"jsonrpc":"2.0","method":"ready","params":{}}`)
 	for scanner.Scan() {
 		line := scanner.Bytes()
 		if len(line) == 0 {
 			continue
 		}
-		resp := h.handleRaw(line)
+		resp := h.HandleRaw(line)
 		if resp != nil {
 			os.Stdout.Write(resp)
 			os.Stdout.Write([]byte{'\n'})
 		}
-		// Drain pending notifications
-		for {
-			select {
-			case n := <-h.notifyCh:
-				b, _ := json.Marshal(map[string]any{
-					"jsonrpc": "2.0",
-					"method":  n["method"],
-					"params":  n["params"],
-				})
-				os.Stdout.Write(b)
-				os.Stdout.Write([]byte{'\n'})
-			default:
-				goto doneNotify
-			}
-		}
-	doneNotify:
 	}
 	if err := scanner.Err(); err != nil && err != io.EOF {
 		fmt.Fprintf(os.Stderr, "rpc: scan error: %v\n", err)

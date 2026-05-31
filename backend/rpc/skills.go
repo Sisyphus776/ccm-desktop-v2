@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ccm-desktop-v2/backend/internal/fsutil"
-	"ccm-desktop-v2/backend/internal/parser"
-	"ccm-desktop-v2/backend/internal/skills"
-	"ccm-desktop-v2/backend/internal/translate"
+	"ccm-desktop-v2/internal/fsutil"
+	"ccm-desktop-v2/internal/parser"
+	"ccm-desktop-v2/internal/skills"
+	"ccm-desktop-v2/internal/translate"
 )
 
 type SkillItem struct {

@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"ccm-desktop-v2/backend/internal/mcp"
-	"ccm-desktop-v2/backend/internal/memory"
-	"ccm-desktop-v2/backend/internal/report"
-	"ccm-desktop-v2/backend/internal/skills"
+	"ccm-desktop-v2/internal/mcp"
+	"ccm-desktop-v2/internal/memory"
+	"ccm-desktop-v2/internal/report"
+	"ccm-desktop-v2/internal/skills"
 )
 
 type AppSettings struct {

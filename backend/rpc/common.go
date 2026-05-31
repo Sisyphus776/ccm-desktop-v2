@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"ccm-desktop-v2/backend/internal/report"
+	"ccm-desktop-v2/internal/report"
 )
 
 type IssueItem struct {

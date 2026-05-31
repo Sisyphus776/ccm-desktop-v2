@@ -1,8 +1,8 @@
 package rpc
 
 import (
-	"ccm-desktop-v2/backend/internal/skills"
-	"ccm-desktop-v2/backend/internal/translate"
+	"ccm-desktop-v2/internal/skills"
+	"ccm-desktop-v2/internal/translate"
 )
 
 // setTranslateConfig stores Baidu API credentials.
@@ -11,9 +11,9 @@ func setTranslateConfig(appID, secretKey string) string {
 	return "百度翻译 API 配置已保存"
 }
 
-// translateAll scans all skills and plugins, translates un-cached English descriptions,
+// TranslateAll scans all skills and plugins, translates un-cached English descriptions,
 // and emits translation-ready notifications as each completes.
-func translateAll(ctx *AppContext, h *Handler) {
+func TranslateAll(ctx *AppContext, h *Handler) {
 	// Translate skills
 	skillList, err := skills.List(ctx.Cfg)
 	if err == nil {

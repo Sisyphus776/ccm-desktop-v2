@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"ccm-desktop-v2/backend/internal/parser"
+	"ccm-desktop-v2/internal/parser"
 )
 
 type SecretItem struct {
