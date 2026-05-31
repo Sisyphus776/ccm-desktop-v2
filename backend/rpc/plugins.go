@@ -49,29 +49,25 @@ func listPlugins(ctx *AppContext) (any, error) {
 			skillsDir := filepath.Join(inst.InstallPath, "skills")
 			if entries, err := os.ReadDir(skillsDir); err == nil {
 				for _, e := range entries {
+					entryName := e.Name()
 					if e.IsDir() {
-						skillMD := filepath.Join(skillsDir, e.Name(), "SKILL.md")
-						isDisabled := false
-						if !fsutil.PathExists(skillMD) && fsutil.PathExists(skillMD+".disabled") {
-							skillMD = skillMD + ".disabled"
-							isDisabled = true
-						}
-						if fsutil.PathExists(skillMD) {
-							si := SkillItem{Name: e.Name(), Type: "plugin", Status: "ok", Disabled: isDisabled}
-							if data, err := os.ReadFile(skillMD); err == nil {
-								if fmBytes, _, err := parser.ExtractFrontmatter(data); err == nil {
-									if fm, err := parser.ParseSkillFrontmatter(fmBytes); err == nil {
-										si.Description = fm.Description
-										si.Name = fm.Name
-										si.Invocation = "/" + fm.Name
-										if !translate.IsMostlyChinese(fm.Description) {
-											si.DescriptionCN = translate.TranslateDescription(fm.Description)
-										}
-									}
-								}
-							}
+						skillMD := findPluginSkillFile(skillsDir, entryName)
+						if skillMD != "" {
+							disabled := strings.HasSuffix(skillMD, ".disabled")
+							si := makePluginSkillItem(entryName, skillMD, disabled)
 							item.Skills = append(item.Skills, si)
 						}
+					} else if isPluginSkillFile(entryName) {
+						// Standalone .md / .yml file
+						skillMD := filepath.Join(skillsDir, entryName)
+						disabled := strings.HasSuffix(entryName, ".disabled")
+						displayName := entryName
+						if strings.HasSuffix(displayName, ".disabled") {
+							displayName = strings.TrimSuffix(displayName, ".disabled")
+						}
+						displayName = strings.TrimSuffix(displayName, filepath.Ext(displayName))
+						si := makePluginSkillItem(displayName, skillMD, disabled)
+						item.Skills = append(item.Skills, si)
 					}
 				}
 			}
@@ -172,6 +168,52 @@ func forEachPluginSkill(ctx *AppContext, fn func(installPath, skillDirName strin
 			}
 		}
 	}
+}
+
+// isPluginSkillFile checks if a filename is a recognized skill definition file.
+func isPluginSkillFile(name string) bool {
+	n := name
+	if strings.HasSuffix(n, ".disabled") {
+		n = strings.TrimSuffix(n, ".disabled")
+	}
+	switch n {
+	case "SKILL.md", "SKILL.yml", "SKILL.yaml":
+		return true
+	}
+	return false
+}
+
+// findPluginSkillFile searches a plugin skill directory for SKILL.md (or .yml/.yaml).
+func findPluginSkillFile(skillsDir, dirName string) string {
+	for _, name := range []string{"SKILL.md", "SKILL.yml", "SKILL.yaml"} {
+		p := filepath.Join(skillsDir, dirName, name)
+		if fsutil.PathExists(p) {
+			return p
+		}
+		p = filepath.Join(skillsDir, dirName, name+".disabled")
+		if fsutil.PathExists(p) {
+			return p
+		}
+	}
+	return ""
+}
+
+// makePluginSkillItem reads frontmatter from a skill file and returns a SkillItem.
+func makePluginSkillItem(displayName, skillMD string, disabled bool) SkillItem {
+	si := SkillItem{Name: displayName, Type: "plugin", Status: "ok", Disabled: disabled}
+	if data, err := os.ReadFile(skillMD); err == nil {
+		if fmBytes, _, err := parser.ExtractFrontmatter(data); err == nil {
+			if fm, err := parser.ParseSkillFrontmatter(fmBytes); err == nil {
+				si.Description = fm.Description
+				si.Name = fm.Name
+				si.Invocation = "/" + fm.Name
+				if !translate.IsMostlyChinese(fm.Description) {
+					si.DescriptionCN = translate.TranslateDescription(fm.Description)
+				}
+			}
+		}
+	}
+	return si
 }
 
 func disableAllPlugins(ctx *AppContext, h *Handler) (any, error) {

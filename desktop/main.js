@@ -82,7 +82,15 @@ function handleGoStdout(data) {
     }
 }
 function startGoBackend() {
-    const exePath = path.join(__dirname, 'ccm-backend.exe');
+    // In packaged app, ccm-backend.exe is in process.resourcesPath.
+    // In dev, it's next to main.js in the desktop directory.
+    let exePath;
+    if (process.resourcesPath) {
+        exePath = path.join(process.resourcesPath, 'ccm-backend.exe');
+    }
+    else {
+        exePath = path.join(__dirname, 'ccm-backend.exe');
+    }
     const proc = (0, child_process_1.spawn)(exePath, [], {
         stdio: ['pipe', 'pipe', 'pipe'],
         windowsHide: true, // Fix: no console window flash
@@ -127,6 +135,10 @@ function createWindow() {
     });
     if (process.env.NODE_ENV === 'development') {
         mainWindow.loadURL('http://localhost:5173');
+    }
+    else if (process.resourcesPath) {
+        // Packaged: frontend/dist is in resourcesPath
+        mainWindow.loadFile(path.join(process.resourcesPath, 'frontend', 'dist', 'index.html'));
     }
     else {
         mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));

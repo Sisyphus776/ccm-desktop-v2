@@ -1,7 +1,9 @@
 package mcp
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -16,24 +18,52 @@ type MCPServer struct {
 	Config  config.MCPServerConfig
 }
 
-// List discovers all MCP server configurations.
+// settingsFile is a partial struct for reading mcpServers from settings.json
+type settingsFile struct {
+	MCPServers map[string]config.MCPServerConfig `json:"mcpServers"`
+}
+
+// List discovers all MCP server configurations from all known sources.
 func List(cfg *config.Config) ([]MCPServer, error) {
 	var servers []MCPServer
+	seen := map[string]bool{}
 
-	state, err := cfg.LoadClaudeJSON()
-	if err != nil {
-		return nil, err
+	addServer := func(name, project string, srv config.MCPServerConfig) {
+		key := project + ":" + name
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		servers = append(servers, MCPServer{Name: name, Project: project, Config: srv})
 	}
 
-	for projPath, proj := range state.Projects {
-		for name, srv := range proj.MCPServers {
-			servers = append(servers, MCPServer{
-				Name:    name,
-				Project: projPath,
-				Config:  srv,
-			})
+	// 1. ~/.claude.json — project-scoped MCP servers
+	if state, err := cfg.LoadClaudeJSON(); err == nil {
+		for projPath, proj := range state.Projects {
+			for name, srv := range proj.MCPServers {
+				addServer(name, projPath, srv)
+			}
 		}
 	}
+
+	// 2. ~/.claude/settings.json — user-level MCP servers
+	loadMCPFromSettings := func(path string, project string) {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return
+		}
+		var sf settingsFile
+		if err := json.Unmarshal(data, &sf); err != nil {
+			return
+		}
+		for name, srv := range sf.MCPServers {
+			addServer(name, project, srv)
+		}
+	}
+
+	loadMCPFromSettings(cfg.SettingsJSON, "user")
+	// 3. ~/.claude/settings.local.json — local overrides (take precedence)
+	loadMCPFromSettings(cfg.SettingsLocal, "user-local")
 
 	return servers, nil
 }

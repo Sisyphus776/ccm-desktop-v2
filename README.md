@@ -41,6 +41,12 @@ Claude Code 桌面配置管理器。可视化管理 Skills、Plugins、Memory、
 4. 之后每次双击 `CCM Desktop v2.1.exe` 启动
 5. 也可右键 `CCM Desktop v2.1.exe` → 发送到桌面快捷方式
 
+> **自包含安装包**：运行 `npm run dist` 可生成单文件 `.exe` 安装器（含 Electron + Go + 前端，安装即用，零依赖）。
+
+## 百度翻译 API（可选）
+
+Settings 页面可配置百度翻译 API 凭证（注册 [fanyi-api.baidu.com](https://fanyi-api.baidu.com)，免费 200 万字符/月）。配置后 Skill 描述自动中文化。
+
 ## 从源码构建
 
 ### 前提条件

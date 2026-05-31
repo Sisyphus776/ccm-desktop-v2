@@ -2,6 +2,7 @@ package skills
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,7 +32,7 @@ IsDisabled    bool
 	Frontmatter   *parser.SkillFrontmatter
 }
 
-// List discovers all installed skills.
+// List discovers all installed skills recursively.
 func List(cfg *config.Config) ([]Skill, error) {
 	var skills []Skill
 
@@ -39,21 +40,66 @@ func List(cfg *config.Config) ([]Skill, error) {
 		return skills, nil
 	}
 
-	entries, err := os.ReadDir(cfg.SkillsDir)
-	if err != nil {
-		return nil, err
-	}
+	// Recursively walk the skills directory. Each skill is a directory
+	// containing SKILL.md (or a standalone .md/.yml file).
+	filepath.WalkDir(cfg.SkillsDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil // skip inaccessible entries
+		}
+		name := d.Name()
 
-	for _, entry := range entries {
-		entryPath := filepath.Join(cfg.SkillsDir, entry.Name())
-		skill := detectSkill(entryPath, entry)
-		skills = append(skills, skill)
-	}
+		// Skip hidden files/dirs (except .md, .yml, .yaml files)
+		if name != "" && name[0] == '.' && !strings.HasSuffix(name, ".md") && !strings.HasSuffix(name, ".yml") && !strings.HasSuffix(name, ".yaml") && !strings.HasSuffix(name, ".disabled") {
+			if d.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// If we find SKILL.md (or .yml equivalent) in a directory, that directory is a skill root
+		if isSkillFile(name) {
+			dir := filepath.Dir(path)
+			// Skip if this dir was already added as a skill (avoid duplicates
+			// when a dir has both SKILL.md and SKILL.yml)
+			for _, existing := range skills {
+				if existing.Path == dir {
+					return nil
+				}
+			}
+			skill := detectSkill(dir, nil)
+			skills = append(skills, skill)
+			return filepath.SkipDir // don't recurse into skill dirs
+		}
+
+		return nil
+	})
 
 	return skills, nil
 }
 
+// isSkillFile returns true if the filename represents a skill definition file.
+// Recognizes: SKILL.md, SKILL.yml, SKILL.yaml (and .disabled variants).
+func isSkillFile(name string) bool {
+	if strings.HasSuffix(name, ".disabled") {
+		name = strings.TrimSuffix(name, ".disabled")
+	}
+	switch name {
+	case "SKILL.md", "SKILL.yml", "SKILL.yaml":
+		return true
+	default:
+		return false
+	}
+}
+
 func detectSkill(path string, entry os.DirEntry) Skill {
+	// If called from WalkDir, entry may be nil — get info from path
+	if entry == nil {
+		info, err := os.Stat(path)
+		if err != nil {
+			return Skill{Name: filepath.Base(path), Path: path}
+		}
+		entry = fs.FileInfoToDirEntry(info)
+	}
 	name := entry.Name()
 
 	// Check if it's a symlink (Readlink is more reliable than ModeSymlink on Windows)
@@ -69,9 +115,9 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 			skill.IsBroken = true
 		}
 		// Try to read SKILL.md from the target
-		if target != "" {
-			skillMD := filepath.Join(target, "SKILL.md")
-			if fsutil.PathExists(skillMD) {
+		if target != "" && !skill.IsBroken {
+			skillMD := findSkillFile(target)
+			if skillMD != "" {
 				skill.SkillMD = skillMD
 				if fm, err := parseSkillFrontmatter(skillMD); err == nil {
 					skill.Frontmatter = fm
@@ -84,15 +130,17 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 		return skill
 	}
 
-	// Directory with SKILL.md
+	// Directory: check for SKILL.md / SKILL.yml inside
 	if entry.IsDir() {
-		skillMD := filepath.Join(path, "SKILL.md")
-		if fsutil.PathExists(skillMD) {
+		skillMD := findSkillFile(path)
+		if skillMD != "" {
+			disabled := strings.HasSuffix(filepath.Base(skillMD), ".disabled")
 			skill := Skill{
-				Name:    name,
-				Path:    path,
-				Type:    SkillTypeDir,
-				SkillMD: skillMD,
+				Name:       name,
+				Path:       path,
+				Type:       SkillTypeDir,
+				SkillMD:    skillMD,
+				IsDisabled: disabled,
 			}
 			if fm, err := parseSkillFrontmatter(skillMD); err == nil {
 				skill.Frontmatter = fm
@@ -100,20 +148,6 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 			}
 			return skill
 		}
-		if fsutil.PathExists(skillMD+".disabled") {
-			skill := Skill{
-				Name:       name,
-				Path:       path,
-				Type:       SkillTypeDir,
-				IsDisabled: true,
-			}
-			if fm, err := parseSkillFrontmatter(skillMD+".disabled"); err == nil {
-				skill.Frontmatter = fm
-				skill.Name = fm.Name
-			}
-			return skill
-		}
-		// Might be a directory with symlinked contents
 		return Skill{Name: name, Path: path, Type: SkillTypeDir}
 	}
 
@@ -125,8 +159,8 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 			Type:          SkillTypeSymlink,
 			SymlinkTarget: target,
 		}
-		skillMD := filepath.Join(target, "SKILL.md")
-		if fsutil.PathExists(skillMD) {
+		skillMD := findSkillFile(target)
+		if skillMD != "" {
 			skill.SkillMD = skillMD
 			if fm, err := parseSkillFrontmatter(skillMD); err == nil {
 				skill.Frontmatter = fm
@@ -138,26 +172,20 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 		return skill
 	}
 
-	// Standalone .md file (or .md.disabled)
-	if strings.HasSuffix(name, ".md") {
-		skill := Skill{
-			Name:    strings.TrimSuffix(name, ".md"),
-			Path:    path,
-			Type:    SkillTypeStandaloneMD,
-			SkillMD: path,
+	// Standalone .md / .yml / .yaml file
+	if isSkillFile(name) {
+		baseName := name
+		disabled := false
+		if strings.HasSuffix(baseName, ".disabled") {
+			baseName = strings.TrimSuffix(baseName, ".disabled")
+			disabled = true
 		}
-		if fm, err := parseSkillFrontmatter(path); err == nil {
-			skill.Frontmatter = fm
-			skill.Name = fm.Name
-		}
-		return skill
-	}
-	if strings.HasSuffix(name, ".md.disabled") {
 		skill := Skill{
-			Name:       strings.TrimSuffix(name, ".md.disabled"),
+			Name:       filepath.Base(path[:len(path)-len(filepath.Ext(path))]),
 			Path:       path,
 			Type:       SkillTypeStandaloneMD,
-			IsDisabled: true,
+			SkillMD:    path,
+			IsDisabled: disabled,
 		}
 		if fm, err := parseSkillFrontmatter(path); err == nil {
 			skill.Frontmatter = fm
@@ -167,6 +195,22 @@ func detectSkill(path string, entry os.DirEntry) Skill {
 	}
 
 	return Skill{Name: name, Path: path}
+}
+
+// findSkillFile searches a directory for any recognized skill definition file.
+// Priority: SKILL.md > SKILL.yml > SKILL.yaml (and their .disabled variants).
+func findSkillFile(dir string) string {
+	for _, name := range []string{"SKILL.md", "SKILL.yml", "SKILL.yaml"} {
+		p := filepath.Join(dir, name)
+		if fsutil.PathExists(p) {
+			return p
+		}
+		p = filepath.Join(dir, name+".disabled")
+		if fsutil.PathExists(p) {
+			return p
+		}
+	}
+	return ""
 }
 
 // isSymlink checks if path is a symlink/reparse point (works on Windows junctions too).
@@ -189,8 +233,8 @@ func readGitBashSymlink(path string) string {
 	if content == "" {
 		return ""
 	}
-	// Git Bash text symlinks contain a path starting with / or drive letter
-	if strings.HasPrefix(content, "/") || strings.HasPrefix(content, "C:") || strings.HasPrefix(content, "D:") {
+	// Git Bash text symlinks contain an absolute path (Unix / or Windows drive letter)
+	if strings.HasPrefix(content, "/") || (len(content) >= 2 && content[1] == ':') {
 		return fsutil.NormalizePath(content)
 	}
 	return ""

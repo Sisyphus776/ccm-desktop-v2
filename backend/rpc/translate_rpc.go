@@ -5,6 +5,12 @@ import (
 	"ccm-desktop-v2/backend/internal/translate"
 )
 
+// setTranslateConfig stores Baidu API credentials.
+func setTranslateConfig(appID, secretKey string) string {
+	translate.SetAPIConfig(appID, secretKey)
+	return "百度翻译 API 配置已保存"
+}
+
 // translateAll scans all skills and plugins, translates un-cached English descriptions,
 // and emits translation-ready notifications as each completes.
 func translateAll(ctx *AppContext, h *Handler) {

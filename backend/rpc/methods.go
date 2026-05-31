@@ -123,6 +123,14 @@ func RegisterAll(h *Handler, ctx *AppContext) {
 		json.Unmarshal(p, &params)
 		return restoreBackup(ctx, params.ZipPath, params.Force)
 	})
+	h.Register("translate.set_config", func(p json.RawMessage) (any, error) {
+		var params struct {
+			AppID     string `json:"appId"`
+			SecretKey string `json:"secretKey"`
+		}
+		json.Unmarshal(p, &params)
+		return setTranslateConfig(params.AppID, params.SecretKey), nil
+	})
 	h.Register("translate.batch", func(p json.RawMessage) (any, error) {
 		go translateAll(ctx, h)
 		return "started", nil

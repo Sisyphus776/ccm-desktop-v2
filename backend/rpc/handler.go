@@ -62,11 +62,14 @@ func (h *Handler) Register(method string, fn MethodFn) {
 }
 
 func (h *Handler) Notify(method string, params map[string]any) {
-	if h.notifyCh != nil {
-		h.notifyCh <- map[string]any{
-			"method": method,
-			"params": params,
-		}
+	if h.notifyCh == nil {
+		return
+	}
+	msg := map[string]any{"method": method, "params": params}
+	select {
+	case h.notifyCh <- msg:
+	default:
+		// Queue full — drop silently rather than blocking the caller
 	}
 }
 
